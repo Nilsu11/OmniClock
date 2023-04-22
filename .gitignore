@@ -9,6 +9,7 @@
 /.idea/assetWizardSettings.xml
 .DS_Store
 /build
+/MaterialDateTimePicker/build
 /captures
 .externalNativeBuild
 .cxx
