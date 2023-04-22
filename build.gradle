@@ -1,0 +1,54 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 29
+    defaultConfig {
+        applicationId 'org.omnirom.deskclock'
+        minSdkVersion 26
+        targetSdkVersion 29
+        versionCode 5
+        versionName '1.0.5'
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard.flags'
+        }
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+
+            java.srcDirs = ['src']
+            res.srcDirs = ['res']
+        }
+    }
+    packagingOptions {
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/LICENSE-FIREBASE.txt'
+        exclude 'META-INF/NOTICE.txt'
+        exclude '.readme'
+        exclude 'META-INF/DEPENDENCIES'
+    }
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+
+aaptOptions {
+        additionalParameters '--auto-add-overlay'//, '--extra-packages=com.wdullaer.materialdatetimepicker'
+    }
+}
+
+dependencies {
+    implementation project(':OmniClock:MaterialDateTimePicker')
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.android.support:cardview-v7:28.0.0'
+    implementation 'com.android.support:support-v4:28.0.0'
+    implementation 'com.android.support:support-v13:28.0.0'
+    implementation 'junit:junit:4.13.2'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.13'
+//    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+}
