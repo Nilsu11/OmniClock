@@ -1,3 +1,3 @@
 # OmniROMs OmniClock
 look at their gerrit for contributers
-gradle stuff is from me
+gradle and notification stuff is from me
