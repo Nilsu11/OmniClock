@@ -3,10 +3,13 @@ look at their gerrit for contributers
 
 gradle and notification stuff is from me
 
+following this commit every commit is from the one who is shown on github,
+going foreward I will only port the things I want this app todo. Anyone else can create a pull request
+
 TODOs:
 -----------------
 
-1.make sound play and notification post, when timer is fired or started
+1.redo the timers
 
 2.update libs
 
