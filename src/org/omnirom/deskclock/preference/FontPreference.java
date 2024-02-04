@@ -24,7 +24,7 @@ import java.util.List;
 
 import android.content.Context;
 import android.graphics.Typeface;
-import android.preference.ListPreference;
+import androidx.preference.ListPreference;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.TextView;
@@ -51,17 +51,5 @@ public class FontPreference extends ListPreference {
 
         setEntries(fontNames.toArray(new CharSequence[fontNames.size()]));
         setEntryValues(fontPaths.toArray(new CharSequence[fontPaths.size()]));
-    }
-
-    @Override
-    protected void onBindView(View view) {
-        super.onBindView(view);
-        mFontSample = (TextView) view.findViewById(org.omnirom.deskclock.R.id.font_sample);
-        if (getValue() != null) {
-            Typeface tface = Typeface.createFromFile(getValue());
-            if (tface != null) {
-                mFontSample.setTypeface(tface);
-            }
-        }
     }
 }

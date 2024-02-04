@@ -16,29 +16,6 @@
 
 package org.omnirom.deskclock;
 
-import android.app.Activity;
-import android.content.ContentResolver;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.media.RingtoneManager;
-import android.net.Uri;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.text.TextUtils;
-
-import org.omnirom.deskclock.alarms.AlarmStateManager;
-import org.omnirom.deskclock.provider.Alarm;
-import org.omnirom.deskclock.provider.AlarmInstance;
-import org.omnirom.deskclock.provider.DaysOfWeek;
-import org.omnirom.deskclock.timer.TimerFullScreenFragment;
-import org.omnirom.deskclock.timer.TimerObj;
-import org.omnirom.deskclock.timer.Timers;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-
 import static android.provider.AlarmClock.ACTION_SET_ALARM;
 import static android.provider.AlarmClock.ACTION_SET_TIMER;
 import static android.provider.AlarmClock.ACTION_SHOW_ALARMS;
@@ -52,7 +29,31 @@ import static android.provider.AlarmClock.EXTRA_SKIP_UI;
 import static android.provider.AlarmClock.EXTRA_VIBRATE;
 import static android.provider.AlarmClock.VALUE_RINGTONE_SILENT;
 
-public class HandleApiCalls extends Activity {
+import android.content.ContentResolver;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.Bundle;
+import androidx.preference.PreferenceManager;
+import androidx.appcompat.app.AppCompatActivity;
+import android.text.TextUtils;
+
+import org.omnirom.deskclock.alarms.AlarmStateManager;
+import org.omnirom.deskclock.provider.Alarm;
+import org.omnirom.deskclock.provider.AlarmInstance;
+import org.omnirom.deskclock.provider.DaysOfWeek;
+import org.omnirom.deskclock.timer.TimerFullScreenFragment;
+import org.omnirom.deskclock.timer.TimerObj;
+import org.omnirom.deskclock.timer.TimerReceiver;
+import org.omnirom.deskclock.timer.Timers;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+public class HandleApiCalls extends AppCompatActivity {
 
     public static final long TIMER_MIN_LENGTH = 1000;
     public static final long TIMER_MAX_LENGTH = 24 * 60 * 60 * 1000;
@@ -217,7 +218,7 @@ public class HandleApiCalls extends Activity {
         timer.writeToSharedPref(prefs);
 
         // Tell TimerReceiver that the timer was started
-        sendBroadcast(new Intent().setAction(Timers.START_TIMER)
+        sendBroadcast(new Intent(this, TimerReceiver.class).setAction(Timers.START_TIMER)
                 .putExtra(Timers.TIMER_INTENT_EXTRA, timer.mTimerId));
 
         if (skipUi) {

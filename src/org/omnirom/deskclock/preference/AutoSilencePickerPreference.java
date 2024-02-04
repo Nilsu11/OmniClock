@@ -7,6 +7,7 @@ package org.omnirom.deskclock.preference;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -25,17 +26,12 @@ public class AutoSilencePickerPreference extends NumberPickerPreference
 
         setMinValue(DEFAULT_MIN_VALUE);
         setMaxValue(DEFAULT_MAX_VALUE);
-
-        // set layout
-        setDialogLayoutResource(R.layout.auto_silence_picker);
-        setPositiveButtonText(android.R.string.ok);
-        setNegativeButtonText(android.R.string.cancel);
-        setDialogIcon(null);
     }
 
     @Override
-    protected void onBindDialogView(View view) {
-        super.onBindDialogView(view);
+    public View createDialogView(View view) {
+        view = LayoutInflater.from(mContext).inflate(R.layout.auto_silence_picker, null);
+        view = super.createDialogView(view);
 
         mNeverCheckbox = (CheckBox) view.findViewById(R.id.never_checkbox);
         mNeverCheckbox.setChecked(getValue() == -1);
@@ -46,6 +42,7 @@ public class AutoSilencePickerPreference extends NumberPickerPreference
                 mNumberPicker.setEnabled(!isChecked);
             }
         });
+        return view;
     }
 
     @Override

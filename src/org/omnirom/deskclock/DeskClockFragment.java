@@ -20,22 +20,19 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.app.Activity;
-import android.app.Fragment;
 import android.os.Bundle;
+import androidx.fragment.app.Fragment;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-
-import org.omnirom.deskclock.widget.ActionableToastBar;
 
 public class DeskClockFragment extends Fragment {
 
     protected ImageView mFab;
     protected ImageView mLeftButton;
     protected ImageView mRightButton;
-    protected ActionableToastBar mUndoBar;
-    protected View mUndoFrame;
-    protected LinearLayout mFabButtons;
+    protected ViewGroup mFabButtons;
 
     @Override
     public void onCreate(Bundle savedState) {
@@ -45,7 +42,6 @@ public class DeskClockFragment extends Fragment {
     public void onPageChanged(int page) {
         // super MUST be called from subs
         mFabButtons.setPadding(0, 0, 0, 0);
-        mUndoFrame.setVisibility(View.GONE);
     }
 
     public void onFabClick(View view){
@@ -61,8 +57,6 @@ public class DeskClockFragment extends Fragment {
             mFab = deskClockActivity.getFab();
             mLeftButton = deskClockActivity.getLeftButton();
             mRightButton = deskClockActivity.getRightButton();
-            mUndoBar = deskClockActivity.getUndoBar();
-            mUndoFrame = deskClockActivity.getUndoFrame();
             mFabButtons = deskClockActivity.getFabButtons();
         }
     }

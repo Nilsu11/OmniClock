@@ -19,8 +19,6 @@ package org.omnirom.deskclock;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.DialogFragment;
-import android.app.Fragment;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -32,10 +30,13 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+import androidx.preference.PreferenceManager;
 import android.provider.MediaStore;
-import android.support.v13.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -47,7 +48,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.SearchView;
 import android.widget.TextView;
 
 import org.omnirom.deskclock.alarms.AlarmConstants;
@@ -59,7 +59,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class BrowseActivity extends Activity implements SearchView.OnQueryTextListener,
+public class BrowseActivity extends AppCompatActivity implements SearchView.OnQueryTextListener,
         StorageChooserDialog.ChosenStorageListener, PlaylistDialogFragment.PlaylistDialogHandler {
 
     public static final int QUERY_TYPE_ALARM = 0;
@@ -125,16 +125,16 @@ public class BrowseActivity extends Activity implements SearchView.OnQueryTextLi
     protected void onCreate(Bundle savedInstanceState) {
         if (getIntent().hasExtra(AlarmConstants.DATA_COLOR_THEME_ID)) {
             int themeId = getIntent().getIntExtra(AlarmConstants.DATA_COLOR_THEME_ID, 0);
-            setTheme(Utils.getThemeResourceId(this, themeId));
+            setTheme(Utils.getThemeResourceId(themeId));
         } else if (getIntent().hasExtra(AlarmConstants.DATA_COLOR_THEME_LIGHT)) {
             boolean lightTheme = getIntent().getBooleanExtra(AlarmConstants.DATA_COLOR_THEME_LIGHT, true);
-            setTheme(Utils.getThemeResourceId(this, lightTheme ? 0 : 1));
+            setTheme(Utils.getThemeResourceId(lightTheme ? 0 : 1));
         } else {
             setTheme(Utils.getThemeResourceId(this));
         }
 
         super.onCreate(savedInstanceState);
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mPrimaryColor = getResources().getColor(android.R.color.white);
         mPrimaryColorDisabled = Utils.setColorAlpha(mPrimaryColor,
@@ -1241,13 +1241,13 @@ public class BrowseActivity extends Activity implements SearchView.OnQueryTextLi
             mAlarm.alert = Uri.parse(uri);
             final AlarmTestDialog fragment = AlarmTestDialog.newInstance(mAlarm, mPreAlarm,
                     name, iconId);
-            fragment.show(getFragmentManager(), "alarm_test");
+            fragment.show(getSupportFragmentManager(), "alarm_test");
         }
     }
 
 
     private void closeAlarmTestDialog() {
-        final Fragment prev = getFragmentManager().findFragmentByTag("alarm_test");
+        final Fragment prev = getSupportFragmentManager().findFragmentByTag("alarm_test");
         if (prev != null) {
             ((DialogFragment) prev).dismiss();
         }
@@ -1471,11 +1471,11 @@ public class BrowseActivity extends Activity implements SearchView.OnQueryTextLi
         closeStoragePicker();
 
         final StorageChooserDialog fragment = StorageChooserDialog.newInstance(this);
-        fragment.show(getFragmentManager(), "choose_dialog");
+        fragment.show(getSupportFragmentManager(), "choose_dialog");
     }
 
     private void closeStoragePicker() {
-        final Fragment prev = getFragmentManager().findFragmentByTag("choose_dialog");
+        final Fragment prev = getSupportFragmentManager().findFragmentByTag("choose_dialog");
         if (prev != null) {
             ((DialogFragment) prev).dismiss();
         }
@@ -1498,8 +1498,7 @@ public class BrowseActivity extends Activity implements SearchView.OnQueryTextLi
     private void checkStoragePermissions() {
         boolean needRequest = false;
         String[] permissions = {
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                android.Manifest.permission.READ_EXTERNAL_STORAGE
+                Manifest.permission.READ_MEDIA_AUDIO
         };
         ArrayList<String> permissionList = new ArrayList<String>();
         for (String permission : permissions) {
@@ -1516,7 +1515,7 @@ public class BrowseActivity extends Activity implements SearchView.OnQueryTextLi
                 for (int i = 0; i < count; i++) {
                     permissionArray[i] = permissionList.get(i);
                 }
-                ActivityCompat.requestPermissions(this, permissionArray, PERMISSIONS_REQUEST_EXTERNAL_STORAGE);
+                requestPermissions(permissionArray, PERMISSIONS_REQUEST_EXTERNAL_STORAGE);
             }
         } else {
             mHasStoragePerms = true;
@@ -1614,11 +1613,11 @@ public class BrowseActivity extends Activity implements SearchView.OnQueryTextLi
     private void showPlaylistDialog() {
         closePlaylistDialog();
         final PlaylistDialogFragment newFragment = PlaylistDialogFragment.newInstance(this);
-        newFragment.show(getFragmentManager(), "playlist_dialog");
+        newFragment.show(getSupportFragmentManager(), "playlist_dialog");
     }
 
     private void closePlaylistDialog() {
-        final Fragment prev = getFragmentManager().findFragmentByTag("playlist_dialog");
+        final Fragment prev = getSupportFragmentManager().findFragmentByTag("playlist_dialog");
         if (prev != null) {
             ((DialogFragment) prev).dismiss();
         }

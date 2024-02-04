@@ -14,12 +14,11 @@
 
 package org.omnirom.deskclock.timer;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+import androidx.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -27,16 +26,19 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 
+import androidx.appcompat.app.AppCompatActivity;
+
+import org.omnirom.deskclock.LogUtils;
+import org.omnirom.deskclock.SettingsActivity;
 import org.omnirom.deskclock.Utils;
 import org.omnirom.deskclock.timer.TimerFullScreenFragment.OnEmptyListListener;
-import org.omnirom.deskclock.SettingsActivity;
 
 /**
  * Timer alarm alert: pops visible indicator. This activity is the version which
  * shows over the lock screen.
  * This activity re-uses TimerFullScreenFragment GUI
  */
-public class TimerAlertFullScreen extends Activity implements OnEmptyListListener {
+public class TimerAlertFullScreen extends AppCompatActivity implements OnEmptyListListener {
 
     private static final String TAG = "TimerAlertFullScreen";
     private static final String FRAGMENT = "timer";
@@ -71,7 +73,7 @@ public class TimerAlertFullScreen extends Activity implements OnEmptyListListene
             timerFragment.setArguments(args);
 
             // Add the fragment to the 'fragment_container' FrameLayout
-            getFragmentManager().beginTransaction()
+            getSupportFragmentManager().beginTransaction()
                     .add(org.omnirom.deskclock.R.id.fragment_container, timerFragment, FRAGMENT).commit();
         }
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
@@ -155,6 +157,6 @@ public class TimerAlertFullScreen extends Activity implements OnEmptyListListene
     }
 
     private TimerFullScreenFragment getFragment() {
-        return (TimerFullScreenFragment) getFragmentManager().findFragmentByTag(FRAGMENT);
+        return (TimerFullScreenFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT);
     }
 }

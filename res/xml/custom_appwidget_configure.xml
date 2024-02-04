@@ -42,8 +42,5 @@
             android:defaultValue="true"
             android:key="world_clocks"
             android:title="@string/world_clocks_title" />
-        <Preference
-            android:widgetLayout="@layout/preference_button"
-            android:persistent="false" />
 
 </PreferenceScreen>

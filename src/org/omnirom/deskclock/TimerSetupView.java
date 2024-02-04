@@ -27,8 +27,11 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import org.omnirom.deskclock.timer.TimerView;
+
+import java.util.Locale;
 
 
 public class TimerSetupView extends LinearLayout implements Button.OnClickListener,
@@ -36,14 +39,13 @@ public class TimerSetupView extends LinearLayout implements Button.OnClickListen
 
     protected int mInputSize = 6;
 
-    protected final Button mNumbers [] = new Button [10];
+    protected final Button mNumbers [] = new Button [11];
     protected int mInput [] = new int [mInputSize];
     protected int mInputPointer = -1;
-    protected Button mLeft, mRight;
+
     protected ImageView mStart;
-    protected ImageView mDelete;
-    protected TimerView mEnteredTime;
-    protected View mDivider;
+    protected Button mDelete;
+    protected TextView mEnteredTime;
     protected final Context mContext;
 
     private final AnimatorListenerAdapter mHideFabAnimatorListener = new AnimatorListenerAdapter() {
@@ -82,39 +84,31 @@ public class TimerSetupView extends LinearLayout implements Button.OnClickListen
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        View v1 = findViewById(R.id.first);
-        View v2 = findViewById(R.id.second);
-        View v3 = findViewById(R.id.third);
-        View v4 = findViewById(R.id.fourth);
-
-        mEnteredTime = (TimerView)findViewById(R.id.timer_time_text);
-        mDelete = (ImageButton)findViewById(R.id.delete);
+        mEnteredTime = findViewById(R.id.timer_time_text);
+        mDelete = findViewById(R.id.timer_setup_delete);
         mDelete.setOnClickListener(this);
         mDelete.setOnLongClickListener(this);
-        mDivider = findViewById(R.id.divider);
 
-        mNumbers[1] = (Button)v1.findViewById(R.id.key_left);
-        mNumbers[2] = (Button)v1.findViewById(R.id.key_middle);
-        mNumbers[3] = (Button)v1.findViewById(R.id.key_right);
+        mNumbers[1] = findViewById(R.id.timer_setup_digit_1);
+        mNumbers[2] = findViewById(R.id.timer_setup_digit_2);
+        mNumbers[3] = findViewById(R.id.timer_setup_digit_3);
 
-        mNumbers[4] = (Button)v2.findViewById(R.id.key_left);
-        mNumbers[5] = (Button)v2.findViewById(R.id.key_middle);
-        mNumbers[6] = (Button)v2.findViewById(R.id.key_right);
+        mNumbers[4] = findViewById(R.id.timer_setup_digit_4);
+        mNumbers[5] = findViewById(R.id.timer_setup_digit_5);
+        mNumbers[6] = findViewById(R.id.timer_setup_digit_6);
 
-        mNumbers[7] = (Button)v3.findViewById(R.id.key_left);
-        mNumbers[8] = (Button)v3.findViewById(R.id.key_middle);
-        mNumbers[9] = (Button)v3.findViewById(R.id.key_right);
+        mNumbers[7] = findViewById(R.id.timer_setup_digit_7);
+        mNumbers[8] = findViewById(R.id.timer_setup_digit_8);
+        mNumbers[9] = findViewById(R.id.timer_setup_digit_9);
 
-        mLeft = (Button)v4.findViewById(R.id.key_left);
-        mNumbers[0] = (Button)v4.findViewById(R.id.key_middle);
-        mRight = (Button)v4.findViewById(R.id.key_right);
+        mNumbers[0] = findViewById(R.id.timer_setup_digit_0);
+        mNumbers[10] = findViewById(R.id.timer_setup_digit_00);
 
-        mLeft.setVisibility(INVISIBLE);
-        mRight.setVisibility(INVISIBLE);
-
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 11; i++) {
             mNumbers[i].setOnClickListener(this);
-            mNumbers[i].setText(String.format("%d", i));
+            mNumbers[i].setText(i == 10 ? String.format(
+                    Locale.getDefault(), "" + "%0" + 2 + "d", 0) :
+                    String.format("%d", i));
             mNumbers[i].setTag(R.id.numbers_key, new Integer(i));
         }
         updateTime();
@@ -140,7 +134,6 @@ public class TimerSetupView extends LinearLayout implements Button.OnClickListen
         final boolean enabled = isInputHasValue();
         if (mDelete != null) {
             mDelete.setEnabled(enabled);
-            mDivider.setBackgroundResource(enabled ? R.color.primary : R.color.clock_gray);
         }
     }
 
@@ -169,22 +162,31 @@ public class TimerSetupView extends LinearLayout implements Button.OnClickListen
         updateDeleteButtonAndDivider();
     }
 
+    private void append(int digit) {
+        // pressing "0" as the first digit does nothing
+        if (mInputPointer == -1 && digit == 0) {
+            return;
+        }
+        if (mInputPointer < mInputSize - 1) {
+            for (int i = mInputPointer; i >= 0; i--) {
+                mInput[i+1] = mInput[i];
+            }
+            mInputPointer++;
+            mInput [0] = digit;
+            updateTime();
+        }
+    }
+
     protected void doOnClick(View v) {
 
         Integer val = (Integer) v.getTag(R.id.numbers_key);
         // A number was pressed
         if (val != null) {
-            // pressing "0" as the first digit does nothing
-            if (mInputPointer == -1 && val == 0) {
-                return;
-            }
-            if (mInputPointer < mInputSize - 1) {
-                for (int i = mInputPointer; i >= 0; i--) {
-                    mInput[i+1] = mInput[i];
-                }
-                mInputPointer++;
-                mInput [0] = val;
-                updateTime();
+            if (val == 10) {
+                append(0);
+                append(0);
+            } else {
+                append(val);
             }
             return;
         }
@@ -214,8 +216,11 @@ public class TimerSetupView extends LinearLayout implements Button.OnClickListen
     }
 
     protected void updateTime() {
-        mEnteredTime.setTime(mInput[5], mInput[4], mInput[3], mInput[2],
-                mInput[1] * 10 + mInput[0]);
+        mEnteredTime.setText(mInput[5] + "" + mInput[4] +
+                mContext.getString(R.string.hours_label_new) +
+                mInput[3] + mInput[2] +
+                mContext.getString(R.string.minutes_label_new) +
+                mInput[1] + mInput[0]);
     }
 
     public void reset() {
@@ -247,4 +252,7 @@ public class TimerSetupView extends LinearLayout implements Button.OnClickListen
         }
         initializeStartButtonVisibility();
     }
+
+
+
 }

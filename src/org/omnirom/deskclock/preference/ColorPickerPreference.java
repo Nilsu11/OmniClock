@@ -16,14 +16,14 @@
 
 package org.omnirom.deskclock.preference;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
-import android.preference.Preference;
+import androidx.preference.Preference;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatDialog;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageView;
@@ -38,7 +38,7 @@ public class ColorPickerPreference extends Preference implements DialogInterface
     private ImageView mLightColorView;
     private Resources mResources;
     private int mColorValue;
-    private Dialog mDialog;
+    private AppCompatDialog mDialog;
 
     /**
      * @param context
@@ -70,15 +70,6 @@ public class ColorPickerPreference extends Preference implements DialogInterface
         return mColorValue;
     }
 
-    @Override
-    protected void onBindView(View view) {
-        super.onBindView(view);
-
-        mLightColorView = (ImageView) view.findViewById(org.omnirom.deskclock.R.id.light_color);
-
-        updatePreferenceViews();
-    }
-
     private void updatePreferenceViews() {
         final int width = (int) mResources.getDimension(org.omnirom.deskclock.R.dimen.color_preference_width);
         final int height = (int) mResources.getDimension(org.omnirom.deskclock.R.dimen.color_preference_height);
@@ -97,7 +88,7 @@ public class ColorPickerPreference extends Preference implements DialogInterface
         mDialog.show();
     }
 
-    public Dialog getDialog() {
+    public AppCompatDialog getDialog() {
         final ColorPickerDialog d = new ColorPickerDialog(getContext(), mColorValue, true);
 
         d.setButton(AlertDialog.BUTTON_POSITIVE, mResources.getString(android.R.string.ok),

@@ -32,7 +32,7 @@
         android:layout_height="wrap_content"
         android:paddingTop="16dp"
         android:drawablePadding="4dp"
-        android:textAppearance="@android:style/TextAppearance.Material.Subhead"/>
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"/>
 
     <TextView
         android:id="@+id/play_info_sub"

@@ -34,9 +34,7 @@
     <string name="entry_three_count">3 рази</string>
     <string name="entry_five_count">5 разів</string>
     <string name="entry_ten_count">10 разів</string>
-    <string name="pick_media">Обрати аудіо</string>
     <string name="ringtone_disabled">Вимкнено</string>
-    <string name="media_start">Відправити початок аудіо</string>
     <string name="alarm_alert_prealarm_dismiss_title">Попередній сигнал вимкнено</string>
     <string name="prealarm_time_select">Час попереднього сигналу:</string>
     <string name="alarm_title">Будильник</string>
@@ -44,20 +42,13 @@
     <string name="alarm_volume_enable_title">Гучність сигналу системи</string>
     <string name="alarm_test_dialog_title">Відтворити сигнал</string>
     <string name="alarm_test_dialog_content">Натисніть \"Скасувати\", щоб зупинити</string>
-    <string name="alarm_test">Відтворити сигнал</string>
-    <string name="alarmType">Будильник</string>
-    <string name="ringtoneType">Дзвінок</string>
-    <string name="notificationType">Сповіщення</string>
-    <string name="mediaType">Музичний файл</string>
     <string name="folderType">Музична тека</string>
-    <string name="playlistType">Плейлист</string>
     <string name="alarm_type_select_title">Джерело:</string>
     <string name="alarm_ringtone_title">Звук:</string>
     <string name="alarm_test_button">Перевірити</string>
     <string name="keep_screen_on_title">Не вимикати екран</string>
     <string name="keep_screen_on_summary">Екран не буде вимикатись при активному будильнику</string>
     <string name="folder_dialog_title">Вибрати теку</string>
-    <string name="play_error_title">Помилка при відтворенні сигналу</string>
     <string name="random_mode_enable_title">Перемішати</string>
     <string name="volume_increase_speed_title">Інтервали збільшення гучності</string>
     <string name="entry_five_secs">5 секунд</string>
@@ -67,7 +58,6 @@
     <string name="pre_alarm_dismiss_all_summary">Вимикаючи активний попередній сигнал, ви також вимкнете основний будильник</string>
     <string name="pre_alarm_dismiss_all_title">Вимкнути всі</string>
     <string name="fallback_ringtone">Типовий</string>
-    <string name="ringtone_unknown">Невідома мелодія</string>
     <string name="entry_one_minute">1 хвилина</string>
     <string name="entry_three_minute">3 хвилини</string>
     <string name="entry_five_minute">5 хвилин</string>
@@ -77,15 +67,10 @@
     <string name="entry_sixty_minute">1 година</string>
     <string name="prealarm_default_label">Попередній сигнал</string>
     <string name="fullscreen_alarm_settings">Повноекранні будильники</string>
-    <string name="fullscreen_alarm_title">Повноекранні будильники</string>
-    <string name="fullscreen_alarm_summary">Використовуйте повноекранні попередження замість спливаючих сповіщень</string>
-    <string name="take_persistent_grant_uri_permission_failed_msg">Не вдалось отримати постійний дозвіл для мелодії дзвінка</string>
     <string name="notification_settings">Сповіщення</string>
     <!-- User-defined cities -->
     <string name="menu_item_add">Додати</string>
     <string name="cities_add_city_title">Додати місто</string>
-    <string name="cities_add_city_city">Місто:</string>
-    <string name="cities_add_city_timezone">Часовий пояс:</string>
     <string name="cities_add_city_gps_cd">Торкніться, щоб встановити ваше поточне місто</string>
     <string name="cities_add_loading">Завантаження\u2026</string>
     <string name="cities_add_searching">Пошук\u2026</string>
@@ -102,11 +87,8 @@
     <string name="week_start_title">Тиждень починається з</string>
     <string name="default_week_start">За промовчанням для даного регіону</string>
     <string name="clone_alarm">Скопіювати сигнал</string>
-    <string name="storage_title">Сховище:</string>
     <string name="folders_scanning">Сканування\u2026</string>
     <string name="alarm_action_category">Параметри будильника</string>
-    <string name="alarm_action_header">Увага: Ці опції активні тільки для повноекранного сповіщення</string>
-    <string name="show_world_clock_title">Показати елементи світового годинника</string>
     <string name="show_alarm_title">Показати наступний будильник</string>
     <string name="show_date_title">Показати дату</string>
     <string name="font_sample_text">11:57</string>

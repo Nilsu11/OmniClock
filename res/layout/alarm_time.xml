@@ -14,13 +14,13 @@
 -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:dc="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/alarm_item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
-    <android.support.v7.widget.CardView xmlns:cardview="http://schemas.android.com/apk/res-auto"
+    <androidx.cardview.widget.CardView xmlns:cardview="http://schemas.android.com/apk/res-auto"
         android:id="@+id/alarm_item_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -29,14 +29,14 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="4dp"
-        cardview:cardCornerRadius="2dp"
+        cardview:cardCornerRadius="28dp"
         cardview:cardBackgroundColor="@color/view_background">
 
         <LinearLayout
             android:id="@+id/alarm_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -45,41 +45,83 @@
                 android:paddingEnd="@dimen/alarm_side_padding"
                 android:paddingStart="@dimen/alarm_side_padding">
 
-                <ImageView
-                    android:id="@+id/alarm_inidicator"
-                    android:layout_width="28dp"
+                <Switch
+                    android:id="@+id/alarm_switch"
+                    android:layout_width="56dp"
                     android:layout_height="28dp"
                     android:layout_gravity="center_vertical"
                     android:scaleType="fitXY"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_alarm"/>
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:minHeight="@dimen/touch_target_min_size"
+                    app:srcCompat="@drawable/ic_alarm"
+                    style="@style/Switch"/>
 
-                <org.omnirom.deskclock.widget.TextTime
-                    android:id="@+id/digital_clock"
+                <org.omnirom.deskclock.widget.EllipsizeLayout
+                    android:id="@+id/summary"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:paddingStart="10dip"
-                    style="@style/TextAppearanceAlarmTime" />
+                    android:layout_height="40dip"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="8dp">
 
-                <Space
-                    android:layout_width="0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
+                    <TextView
+                        android:id="@+id/daysOfWeek"
+                        style="@style/TextAppearanceBottomLine"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:ellipsize="end"
+                        android:gravity="center_vertical"
+                        android:singleLine="true" />
+
+                    <TextView
+                        android:id="@+id/tomorrowLabel"
+                        style="@style/TextAppearanceBottomLine"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:ellipsize="end"
+                        android:gravity="center_vertical"
+                        android:singleLine="true" />
+
+                </org.omnirom.deskclock.widget.EllipsizeLayout>
 
                 <ImageButton
                     android:id="@+id/arrow"
                     android:layout_width="40dip"
                     android:layout_height="40dip"
                     android:layout_gravity="top|end"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@string/expand_alarm"
                     android:scaleType="center"
-                    android:src="@drawable/ic_expand_down" />
+                    app:srcCompat="@drawable/ic_expand_down" />
 
             </LinearLayout>
 
+            <TextView
+                android:id="@+id/edit_label"
+                style="@style/TextAppearanceBottomLine"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:ellipsize="end"
+                android:gravity="center_vertical|start"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:singleLine="true"
+                android:drawableStart="@drawable/ic_alarm_label"
+                android:drawablePadding="4dp"
+                android:background="?attr/selectableItemBackgroundBorderless" />
+
+            <org.omnirom.deskclock.widget.TextTime
+                android:id="@+id/digital_clock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:textColor="?attr/colorAccent"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:paddingStart="10dip"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="15dp"
+                style="@style/TextAppearanceAlarmTime" />
 
             <LinearLayout
                 android:id="@+id/expand_area"
@@ -134,7 +176,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingEnd="20dp"
-                        android:background="?android:attr/selectableItemBackground"
+                        android:background="?attr/selectableItemBackground"
                         android:clickable="true"
                         android:ellipsize="start"
                         android:gravity="center_vertical"
@@ -165,7 +207,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingEnd="20dp"
-                        android:background="?android:attr/selectableItemBackground"
+                        android:background="?attr/selectableItemBackground"
                         android:clickable="true"
                         android:ellipsize="start"
                         android:gravity="center_vertical"
@@ -184,20 +226,6 @@
                     android:paddingStart="12dip"
                     android:text="@string/alarm_vibrate" />
 
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:contentDescription="@string/collapse_alarm"
-                android:orientation="vertical">
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/list_divider_material" />
-
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -206,56 +234,37 @@
                     android:paddingEnd="@dimen/alarm_side_padding"
                     android:paddingStart="@dimen/alarm_side_padding" >
 
-                    <org.omnirom.deskclock.widget.EllipsizeLayout
-                        android:id="@+id/summary"
-                        android:layout_width="wrap_content"
-                        android:layout_height="40dip"
+                    <Space
                         android:layout_weight="1"
-                        android:gravity="center_vertical"
-                        android:paddingStart="4dp"
-                        android:paddingEnd="8dp">
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent" />
 
-                        <TextView
-                            android:id="@+id/edit_label"
-                            style="@style/TextAppearanceBottomLine"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:ellipsize="end"
-                            android:gravity="center_vertical|start"
-                            android:paddingEnd="8dip"
-                            android:singleLine="true"
-                            android:drawableStart="@drawable/ic_alarm_label"
-                            android:drawablePadding="4dp"
-                            android:background="?android:attr/selectableItemBackgroundBorderless" />
+                    <ImageButton
+                        android:id="@+id/edit_label_bt"
+                        style="@style/TextAppearanceBottomLine"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:padding="8dp"
+                        android:contentDescription="@string/label"
+                        app:tint="?attr/colorAccent"
+                        app:srcCompat="@drawable/ic_label_new"
+                        android:drawablePadding="4dp"
+                        android:background="?attr/selectableItemBackgroundBorderless" />
 
-                        <TextView
-                            android:id="@+id/daysOfWeek"
-                            style="@style/TextAppearanceBottomLine"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:ellipsize="end"
-                            android:gravity="center_vertical"
-                            android:singleLine="true" />
-
-                        <TextView
-                            android:id="@+id/tomorrowLabel"
-                            style="@style/TextAppearanceBottomLine"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:ellipsize="end"
-                            android:gravity="center_vertical"
-                            android:singleLine="true" />
-
-                    </org.omnirom.deskclock.widget.EllipsizeLayout>
+                    <Space
+                        android:layout_width="10dp"
+                        android:layout_height="match_parent" />
 
                     <ImageButton
                         android:id="@+id/clone"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@string/clone_alarm"
                         android:gravity="center_vertical"
-                        android:src="@drawable/ic_clone_alarm" />
+                        android:padding="8dp"
+                        app:tint="?attr/colorAccent"
+                        app:srcCompat="@drawable/ic_clone_alarm" />
 
                     <Space
                         android:layout_width="10dp"
@@ -265,12 +274,15 @@
                         android:id="@+id/delete"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@string/delete_alarm"
                         android:gravity="center_vertical"
-                        android:src="@drawable/ic_delete" />
+                        android:padding="8dp"
+                        app:tint="?attr/colorAccent"
+                        app:srcCompat="@drawable/ic_delete" />
                 </LinearLayout>
+
             </LinearLayout>
         </LinearLayout>
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 </LinearLayout>

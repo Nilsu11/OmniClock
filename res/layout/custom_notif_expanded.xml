@@ -23,7 +23,6 @@
     <FrameLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:internal="http://schemas.android.com/apk/prv/res/android"
-        android:id="@+id/swn_expanded_hitspace"
         android:layout_width="match_parent"
         android:layout_height="64dp"
         internal:maxHeight="64dp"
@@ -55,7 +54,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:singleLine="true"
-                    android:textAppearance="@android:style/TextAppearance.Material.Notification.Title" />
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title" />
             </LinearLayout>
 
             <TextView
@@ -66,7 +65,7 @@
                 android:fadingEdge="horizontal"
                 android:visibility="gone"
                 android:singleLine="true"
-                android:textAppearance="@android:style/TextAppearance.Material.Notification.Title" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
             <TextView
                 android:id="@+id/expanded_text"
@@ -75,7 +74,7 @@
                 android:ellipsize="marquee"
                 android:fadingEdge="horizontal"
                 android:singleLine="true"
-                android:textAppearance="@android:style/TextAppearance.Material.Notification"
+                android:textAppearance="@style/TextAppearance.AppCompat"
                 android:visibility="gone" />
         </LinearLayout>
     </FrameLayout>
@@ -106,7 +105,7 @@
                 android:ellipsize="end"
                 android:gravity="start|center_vertical"
                 android:singleLine="true"
-                android:textAppearance="@android:style/TextAppearance.Material.Notification" />
+                android:textAppearance="@style/TextAppearance.AppCompat" />
 
             <TextView
                 android:id="@+id/right_button"
@@ -117,7 +116,7 @@
                 android:ellipsize="end"
                 android:gravity="start|center_vertical"
                 android:singleLine="true"
-                android:textAppearance="@android:style/TextAppearance.Material.Notification" />
+                android:textAppearance="@style/TextAppearance.AppCompat" />
         </LinearLayout>
     </FrameLayout>
 

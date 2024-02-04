@@ -23,7 +23,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.os.Handler;
-import android.preference.PreferenceManager;
+import androidx.preference.PreferenceManager;
 import android.service.dreams.DreamService;
 import android.util.Log;
 import android.view.View;
@@ -121,7 +121,7 @@ public class Screensaver extends DreamService {
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_TIME_CHANGED);
         filter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
-        registerReceiver(mIntentReceiver, filter);
+        Utils.registerReceiver(this, mIntentReceiver, filter, RECEIVER_EXPORTED);
         Utils.setMidnightUpdater(mHandler, mMidnightUpdater);
 
         mHandler.post(mMoveSaverRunnable);

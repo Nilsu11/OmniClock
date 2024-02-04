@@ -24,7 +24,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
-import android.preference.PreferenceManager;
+import androidx.preference.PreferenceManager;
 
 import org.omnirom.deskclock.LogUtils;
 import org.omnirom.deskclock.SettingsActivity;

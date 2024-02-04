@@ -21,9 +21,11 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
 import android.app.AlarmManager;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -44,11 +46,13 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.preference.PreferenceManager;
+
+import androidx.annotation.ColorInt;
+import androidx.preference.PreferenceManager;
 import android.provider.CalendarContract;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
-import android.provider.Settings;
+import androidx.core.view.MenuItemCompat;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -61,7 +65,6 @@ import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.webkit.MimeTypeMap;
-import android.widget.ImageView;
 import android.widget.TextClock;
 import android.widget.TextView;
 
@@ -69,6 +72,7 @@ import org.omnirom.deskclock.alarms.AlarmConstants;
 import org.omnirom.deskclock.provider.Alarm;
 import org.omnirom.deskclock.provider.AlarmInstance;
 import org.omnirom.deskclock.stopwatch.Stopwatches;
+import org.omnirom.deskclock.timer.TimerReceiver;
 import org.omnirom.deskclock.timer.Timers;
 import org.omnirom.deskclock.worldclock.CityObj;
 import org.omnirom.deskclock.worldclock.db.DbCities;
@@ -82,7 +86,6 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.StringBufferInputStream;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -146,6 +149,9 @@ public class Utils {
     /**
      * Returns whether the SDK is Nougat or later
      */
+    public static boolean isTOrLater() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU;
+    }
     public static boolean isNougatOrLater() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
     }
@@ -177,7 +183,7 @@ public class Utils {
         // Set the intent to the help menu item, show the help menu item in the overflow
         // menu, and make it visible.
         helpMenuItem.setIntent(intent);
-        helpMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+        MenuItemCompat.setShowAsAction(helpMenuItem, MenuItem.SHOW_AS_ACTION_NEVER);
         helpMenuItem.setVisible(true);
     }
 
@@ -245,14 +251,6 @@ public class Utils {
     }
 
     /**
-     * The pressed color used throughout the app. If this method is changed, it will not have
-     * any effect on the button press states, and those must be changed separately.
-     **/
-    public static int getPressedColorId() {
-        return R.color.primary;
-    }
-
-    /**
      * The un-pressed color used throughout the app. If this method is changed, it will not have
      * any effect on the button press states, and those must be changed separately.
      **/
@@ -281,18 +279,10 @@ public class Utils {
      * Broadcast a message to show the in-use timers in the notifications
      */
     public static void showInUseNotifications(Context context) {
-        Intent timerIntent = new Intent();
+        Intent timerIntent = new Intent(context, TimerReceiver.class);
         timerIntent.setAction(Timers.NOTIF_IN_USE_SHOW);
         context.sendBroadcast(timerIntent);
-    }
-
-    /**
-     * Broadcast a message to show the in-use timers in the notifications
-     */
-    public static void showTimesUpNotifications(Context context) {
-        Intent timerIntent = new Intent();
-        timerIntent.setAction(Timers.NOTIF_TIMES_UP_SHOW);
-        context.sendBroadcast(timerIntent);
+        LogUtils.e("show Timer IN-USE");
     }
 
     /**
@@ -758,6 +748,7 @@ public class Utils {
         return (city.mCityId == null || dbCity == null) ? city.mCityName : dbCity.mCityName;
     }
 
+    @ColorInt
     public static int getCurrentHourColor() {
         final int hourOfDay = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
         return Color.parseColor(BACKGROUND_SPECTRUM[hourOfDay]);
@@ -836,11 +827,10 @@ public class Utils {
     }
 
     public static boolean isSpotifyPluginInstalled(final Context context) {
-        return false;
-        /*if (!isNewSpotifyPluginInstalled(context)) {
+        if (!isNewSpotifyPluginInstalled(context)) {
             return isOldSpotifyPluginInstalled(context);
         }
-        return true;*/
+        return true;
     }
 
     public static boolean isSpotifyAlarm(AlarmInstance instance, boolean preAlarm) {
@@ -915,33 +905,38 @@ public class Utils {
     }
 
     public static boolean isLightTheme(final Context context) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        String color = prefs.getString(SettingsActivity.KEY_COLOR_THEME, "0");
-        return color.equals("0");
+        return getThemeId(context) == 0;
     }
 
     public static int getThemeId(final Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         String color = prefs.getString(SettingsActivity.KEY_COLOR_THEME, "0");
-        return Integer.valueOf(color);
+        int theme = Integer.valueOf(color);
+        if (theme == -1) {
+            int nightModeFlags =  context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+
+            switch (nightModeFlags) {
+                case Configuration.UI_MODE_NIGHT_YES:
+                    LogUtils.i("onClick: NIGHT YES ");
+                    theme = 1;
+                    break;
+                case Configuration.UI_MODE_NIGHT_NO:
+                    LogUtils.i("onClick: LIGHT");
+                    theme = 0;
+                    break;
+            }
+        }
+        return theme;
     }
 
     public static int getThemeResourceId(final Context context) {
-        switch (getThemeId(context)) {
-            case 0:
-                return R.style.DeskClock;
-            case 1:
-                return R.style.DeskClockDark;
-            case 2:
-                return R.style.DeskClockBlack;
-        }
-        return R.style.DeskClock;
+        return getThemeResourceId(getThemeId(context));
     }
 
-    public static int getThemeResourceId(final Context context, int themeId) {
+    public static int getThemeResourceId(int themeId) {
         switch (themeId) {
             case 0:
-                return R.style.DeskClock;
+                return R.style.DeskClockLight;
             case 1:
                 return R.style.DeskClockDark;
             case 2:
@@ -963,27 +958,19 @@ public class Utils {
     }
 
     public static int getViewBackgroundColor(final Context context) {
-        switch (getThemeId(context)) {
-            case 0:
-                return context.getResources().getColor(R.color.view_background);
-            case 1:
-                return context.getResources().getColor(R.color.view_background_dark);
-            case 2:
-                return context.getResources().getColor(R.color.view_background_black);
-        }
-        return context.getResources().getColor(R.color.view_background);
+        return getViewBackgroundColor(context, getThemeId(context));
     }
 
     public static int getViewBackgroundColor(final Context context, int themeId) {
         switch (themeId) {
             case 0:
-                return context.getResources().getColor(R.color.view_background);
+                return context.getColor(R.color.view_background);
             case 1:
-                return context.getResources().getColor(R.color.view_background_dark);
+                return context.getColor(R.color.view_background_dark);
             case 2:
-                return context.getResources().getColor(R.color.view_background_black);
+                return context.getColor(R.color.view_background_black);
         }
-        return context.getResources().getColor(R.color.view_background);
+        return context.getColor(R.color.view_background);
     }
 
     public static int getCircleViewBackgroundResourceId(final Context context) {
@@ -1670,6 +1657,14 @@ public class Utils {
             pref.edit().remove(SettingsActivity.KEY_ALARM_SNOOZE_OLD).commit();
         }
         return pref.getInt(SettingsActivity.KEY_ALARM_SNOOZE_MINUTES, AlarmInstance.DEFAULT_ALARM_TIMEOUT_SETTING);
+    }
+
+    public static Intent registerReceiver(Context context, BroadcastReceiver receiver, IntentFilter filter, int flags) {
+        if (Utils.isTOrLater()) {
+            return context.registerReceiver(receiver, filter, flags);
+        } else {
+            return context.registerReceiver(receiver, filter);
+        }
     }
 }
 

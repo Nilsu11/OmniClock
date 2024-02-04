@@ -20,7 +20,6 @@
 <!-- These resources are around just to allow their values to be customized
      for different hardware and product builds. -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <bool name="config_requiresScreenSaver">true</bool>
     <bool name="config_rotateAlarmAlert">false</bool>
     <item type="integer" name="timer_column_count">1</item>
     <!-- Number of world clocks in a row, for the clock tab. -->

@@ -16,16 +16,18 @@
 
 package org.omnirom.deskclock;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Context;
+import androidx.fragment.app.Fragment;
 import android.text.format.DateFormat;
+import android.view.View;
 import android.widget.Toast;
 
+import com.google.android.material.snackbar.Snackbar;
+
+import org.omnirom.deskclock.alarms.TimePickerDialogFragment;
 import org.omnirom.deskclock.provider.Alarm;
 import org.omnirom.deskclock.provider.AlarmInstance;
-import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
+import org.omnirom.deskclock.widget.toast.SnackbarManager;
 
 import java.util.Calendar;
 import java.util.Locale;
@@ -34,7 +36,6 @@ import java.util.Locale;
  * Static utility methods for Alarms.
  */
 public class AlarmUtils {
-    public static final String FRAG_TAG_TIME_PICKER = "time_dialog";
 
     public static String getFormattedTime(Context context, Calendar time) {
         String skeleton = DateFormat.is24HourFormat(context) ? "EHm" : "Ehma";
@@ -64,13 +65,6 @@ public class AlarmUtils {
      * @param alarm The clicked alarm, it can be null if user was clicking the fab instead.
      */
     public static void showTimeEditDialog(Fragment fragment, final Alarm alarm) {
-        final FragmentManager manager = fragment.getFragmentManager();
-        final FragmentTransaction ft = manager.beginTransaction();
-        final Fragment prev = manager.findFragmentByTag(FRAG_TAG_TIME_PICKER);
-        if (prev != null) {
-            ft.remove(prev);
-        }
-        ft.commit();
 
         final int hour, minute;
         if (alarm == null) {
@@ -81,10 +75,7 @@ public class AlarmUtils {
             hour = alarm.hour;
             minute = alarm.minutes;
         }
-        final TimePickerDialog timePickerFragment = TimePickerDialog.newInstance((TimePickerDialog.OnTimeSetListener)fragment,
-                hour, minute, DateFormat.is24HourFormat(fragment.getActivity()),
-                Utils.getThemeId(fragment.getActivity()));
-        timePickerFragment.show(manager, FRAG_TAG_TIME_PICKER);
+        TimePickerDialogFragment.show(fragment,hour,minute);
     }
 
     /**
@@ -129,10 +120,11 @@ public class AlarmUtils {
         toast.show();
     }
 
-    public static void popFirstAlarmCreatedToast(Context context) {
-        Toast toast = Toast.makeText(context, R.string.first_alarm_created_hint, Toast.LENGTH_LONG);
-        ToastMaster.setToast(toast);
-        toast.show();
+    public static void popAlarmSetSnackbar(View snackbarAnchor, long alarmTime) {
+        final String text = formatToast(
+                snackbarAnchor.getContext(), alarmTime);
+        SnackbarManager.show(Snackbar.make(snackbarAnchor, text, Snackbar.LENGTH_SHORT));
+        snackbarAnchor.announceForAccessibility(text);
     }
 
     public static void popNoDefaultAlarmSoundToast(Context context) {

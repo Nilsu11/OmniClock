@@ -72,7 +72,7 @@ public class CustomAppWidgetProvider extends AppWidgetProvider {
             super.onCreate();
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction(Intent.ACTION_TIME_TICK);
-            registerReceiver(mClockChangedReceiver, intentFilter);
+            Utils.registerReceiver(this, mClockChangedReceiver, intentFilter, RECEIVER_EXPORTED);
         }
 
         @Override
@@ -224,9 +224,9 @@ public class CustomAppWidgetProvider extends AppWidgetProvider {
                 newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY, -1)
                         != AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD) {
             widget.setOnClickPendingIntent(R.id.the_clock_image,
-                    PendingIntent.getActivity(context, 0, new Intent(context, DeskClock.class), 0));
+                    PendingIntent.getActivity(context, 0, new Intent(context, DeskClock.class),  PendingIntent.FLAG_IMMUTABLE));
             widget.setOnClickPendingIntent(R.id.the_date_image,
-                    PendingIntent.getActivity(context, 0, Utils.getCalendarIntent(new Date()), 0));
+                    PendingIntent.getActivity(context, 0, Utils.getCalendarIntent(new Date()),  PendingIntent.FLAG_IMMUTABLE));
         }
         float fontSize = context.getResources().getDimension(R.dimen.widget_custom_font_size);
         CharSequence timeFormat = DateFormat.is24HourFormat(context) ?
@@ -257,7 +257,7 @@ public class CustomAppWidgetProvider extends AppWidgetProvider {
             //TODO: Should this be in the options guard above?
             widget.setPendingIntentTemplate(R.id.digital_appwidget_listview,
                     PendingIntent.
-                            getActivity(context, 0, new Intent(context, CitiesActivity.class), 0));
+                            getActivity(context, 0, new Intent(context, CitiesActivity.class),  PendingIntent.FLAG_IMMUTABLE));
 
             // Refresh the widget
             appWidgetManager.notifyAppWidgetViewDataChanged(

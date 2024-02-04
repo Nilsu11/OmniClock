@@ -24,7 +24,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.PowerManager;
-import android.preference.PreferenceManager;
+import androidx.preference.PreferenceManager;
 import android.widget.Toast;
 
 import org.omnirom.deskclock.AlarmAlertWakeLock;
@@ -245,7 +245,7 @@ public final class AlarmStateManager extends BroadcastReceiver {
         Intent stateChangeIntent = createStateChangeIntent(context, ALARM_MANAGER_TAG, instance,
                 newState);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, instance.hashCode(),
-                stateChangeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                stateChangeIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (Utils.isMOrLater()) {
@@ -268,7 +268,7 @@ public final class AlarmStateManager extends BroadcastReceiver {
         // Create a PendingIntent that will match any one set for this instance
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, instance.hashCode(),
                 createStateChangeIntent(context, ALARM_MANAGER_TAG, instance, null),
-                PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         am.cancel(pendingIntent);

@@ -18,8 +18,8 @@ package org.omnirom.deskclock;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.media.Ringtone;
@@ -28,34 +28,34 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.TwoStatePreference;
-import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceCategory;
-import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
-import android.preference.RingtonePreference;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.MenuItem;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.ListPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceCategory;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
+import androidx.preference.TwoStatePreference;
+
 import org.omnirom.deskclock.preference.AutoSilencePickerPreference;
 import org.omnirom.deskclock.preference.NumberPickerPreference;
+import org.omnirom.deskclock.preference.RingtonePreference;
 import org.omnirom.deskclock.worldclock.Cities;
 
-import java.util.Arrays;
+import java.text.DateFormatSymbols;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
-import java.text.DateFormatSymbols;
 
 /**
  * Settings for the Alarm Clock.
  */
-public class SettingsActivity extends PreferenceActivity
-        implements Preference.OnPreferenceChangeListener {
+public class SettingsActivity extends AppCompatActivity {
 
     public static final String KEY_ALARM_IN_SILENT_MODE =
             "alarm_in_silent_mode";
@@ -130,16 +130,7 @@ public class SettingsActivity extends PreferenceActivity
     public static final String ALARM_SNOOZE = "1";
     public static final String ALARM_DISMISS = "2";
 
-    private static CharSequence[][] mTimezones;
-    private long mTime;
-    private RingtonePreference mTimerAlarmPref;
-    private final Handler mHandler = new Handler();
-    private TwoStatePreference mCustomTimerAlarm;
-    private NumberPickerPreference mSnoozeMinutes;
-    private AutoSilencePickerPreference mSilenceMinutes;
-    private TwoStatePreference mAnalogShowDateAndTime;
-    private TwoStatePreference mAnalogShowNumbers;
-    private TwoStatePreference mAnalogShowTicks;
+    public static final String PREFS_FRAGMENT_TAG = "prefs_fragment";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,62 +139,16 @@ public class SettingsActivity extends PreferenceActivity
 
         super.onCreate(savedInstanceState);
 
-        addPreferencesFromResource(R.xml.settings);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        setContentView(R.layout.settings);
 
-        getActionBar().setDisplayHomeAsUpEnabled(true);
-
-        // We don't want to reconstruct the timezone list every single time
-        // onResume() is called so we do it once in onCreate
-        ListPreference listPref;
-        listPref = (ListPreference) findPreference(KEY_HOME_TZ);
-        if (mTimezones == null) {
-            mTime = System.currentTimeMillis();
-            mTimezones = getAllTimezones();
+        // Create the prefs fragment in code to ensure it's created before PreferenceDialogFragment
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.main, new PrefsFragment(), PREFS_FRAGMENT_TAG)
+                    .disallowAddToBackStack()
+                    .commit();
         }
-
-        listPref.setEntryValues(mTimezones[0]);
-        listPref.setEntries(mTimezones[1]);
-        listPref.setSummary(listPref.getEntry());
-        listPref.setOnPreferenceChangeListener(this);
-
-        mTimerAlarmPref = (RingtonePreference) findPreference(KEY_TIMER_ALARM);
-        mTimerAlarmPref.setOnPreferenceChangeListener(this);
-
-        mSnoozeMinutes = (NumberPickerPreference) findPreference(KEY_ALARM_SNOOZE_MINUTES);
-        mSnoozeMinutes.setValue(Utils.getSnoozeTimeoutValue(this));
-        mSnoozeMinutes.setMinValue(1);
-        mSnoozeMinutes.setMaxValue(30);
-
-        mSnoozeMinutes.setSummary(getSnoozedMinutes(mSnoozeMinutes.getValue()));
-        mSnoozeMinutes.setOnPreferenceChangeListener(this);
-
-        mSilenceMinutes = (AutoSilencePickerPreference) findPreference(KEY_ALARM_SILENCE_AFTER);
-        mSilenceMinutes.setValue(Utils.getTimeoutValue(this));
-        mSilenceMinutes.setMinValue(1);
-        mSilenceMinutes.setMaxValue(30);
-
-        updateSilenceAfterSummary(mSilenceMinutes, mSilenceMinutes.getValue());
-        mSilenceMinutes.setOnPreferenceChangeListener(this);
-
-        mAnalogShowDateAndTime = (TwoStatePreference) findPreference(KEY_ANALOG_SHOW_DATE);
-        mAnalogShowNumbers = (TwoStatePreference) findPreference(KEY_ANALOG_SHOW_NUMBERS);
-        mAnalogShowTicks = (TwoStatePreference) findPreference(KEY_ANALOG_SHOW_TICKS);
-
-        updateClockStyleDeps(Utils.isClockStyleAnalog(this));
-
-        addSettings();
-
-        if (!getResources().getBoolean(R.bool.config_disableSensorOnWirelessCharging)) {
-            Preference p = findPreference(KEY_ALARM_ACTION_WIRELESS_HEADER);
-            PreferenceCategory alarmActionsCategory = (PreferenceCategory) findPreference(KEY_ALARM_ACTION_CATEGORY);
-            alarmActionsCategory.removePreference(p);
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        lookupRingtoneNames();
     }
 
     @Override
@@ -218,326 +163,402 @@ public class SettingsActivity extends PreferenceActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public boolean onPreferenceChange(Preference pref, Object newValue) {
-        if (KEY_CLOCK_STYLE.equals(pref.getKey())) {
-            final ListPreference listPref = (ListPreference) pref;
-            final int idx = listPref.findIndexOfValue((String) newValue);
-            listPref.setSummary(listPref.getEntries()[idx]);
-            updateClockStyleDeps(newValue.equals(Utils.CLOCK_TYPE_ANALOG));
-        } else if (KEY_HOME_TZ.equals(pref.getKey())) {
-            final ListPreference listPref = (ListPreference) pref;
-            final int idx = listPref.findIndexOfValue((String) newValue);
-            listPref.setSummary(listPref.getEntries()[idx]);
-            notifyHomeTimeZoneChanged();
-        } else if (KEY_AUTO_HOME_CLOCK.equals(pref.getKey())) {
-            boolean state = ((TwoStatePreference) pref).isChecked();
-            Preference homeTimeZone = findPreference(KEY_HOME_TZ);
-            homeTimeZone.setEnabled(!state);
-            notifyHomeTimeZoneChanged();
-        } else if (KEY_VOLUME_BUTTONS.equals(pref.getKey())) {
-            final ListPreference listPref = (ListPreference) pref;
-            final int idx = listPref.findIndexOfValue((String) newValue);
-            listPref.setSummary(listPref.getEntries()[idx]);
-        } else if (KEY_ALARM_SNOOZE_MINUTES.equals(pref.getKey())) {
-            mSnoozeMinutes.setSummary(getSnoozedMinutes((Integer) newValue));
-        } else if (KEY_ALARM_SILENCE_AFTER.equals(pref.getKey())) {
-            updateSilenceAfterSummary(pref, (Integer) newValue);
-        } else if (KEY_ALARM_SNOOZE_COUNT.equals(pref.getKey())) {
-            final ListPreference listPref = (ListPreference) pref;
-            final int idx = listPref.findIndexOfValue((String) newValue);
-            listPref.setSummary(listPref.getEntries()[idx]);
-        } else if (KEY_FLIP_ACTION.equals(pref.getKey())) {
-            final ListPreference listPref = (ListPreference) pref;
-            final int idx = listPref.findIndexOfValue((String) newValue);
-            listPref.setSummary(listPref.getEntries()[idx]);
-        } else if (KEY_SHAKE_ACTION.equals(pref.getKey())) {
-            final ListPreference listPref = (ListPreference) pref;
-            final int idx = listPref.findIndexOfValue((String) newValue);
-            listPref.setSummary(listPref.getEntries()[idx]);
-        } else if (KEY_WAVE_ACTION.equals(pref.getKey())) {
-            final ListPreference listPref = (ListPreference) pref;
-            final int idx = listPref.findIndexOfValue((String) newValue);
-            listPref.setSummary(listPref.getEntries()[idx]);
-        } else if (KEY_VOLUME_INCREASE_SPEED.equals(pref.getKey())) {
-            final ListPreference listPref = (ListPreference) pref;
-            final int idx = listPref.findIndexOfValue((String) newValue);
-            listPref.setSummary(listPref.getEntries()[idx]);
-        } else if (KEY_WEEK_START.equals(pref.getKey())) {
-            final ListPreference listPref = (ListPreference) pref;
-            final int idx = listPref.findIndexOfValue((String) newValue);
-            listPref.setSummary(listPref.getEntries()[idx]);
-        } else if (KEY_AUDIO_STREAM.equals(pref.getKey())) {
-            final ListPreference listPref = (ListPreference) pref;
-            final int idx = listPref.findIndexOfValue((String) newValue);
-            listPref.setSummary(listPref.getEntries()[idx]);
-        } else if (KEY_TIMER_ALARM_INCREASE_VOLUME_SPEED.equals(pref.getKey())) {
-            final ListPreference listPref = (ListPreference) pref;
-            final int idx = listPref.findIndexOfValue((String) newValue);
-            listPref.setSummary(listPref.getEntries()[idx]);
-        } else if (KEY_PRE_ALARM_NOTIFICATION_TIME.equals(pref.getKey())) {
-            final ListPreference listPref = (ListPreference) pref;
-            final int idx = listPref.findIndexOfValue((String) newValue);
-            listPref.setSummary(listPref.getEntries()[idx]);
-        } else if (KEY_COLOR_THEME.equals(pref.getKey())) {
-            final ListPreference listPref = (ListPreference) pref;
-            final int idx = listPref.findIndexOfValue((String) newValue);
-            listPref.setSummary(listPref.getEntries()[idx]);
-            notifyColorThemeChanged();
-        } else if (KEY_DEFAULT_PAGE.equals(pref.getKey())) {
-            final ListPreference listPref = (ListPreference) pref;
-            final int idx = listPref.findIndexOfValue((String) newValue);
-            listPref.setSummary(listPref.getEntries()[idx]);
-        }
 
-        return true;
-    }
+    public static class PrefsFragment extends PreferenceFragmentCompat implements
+            Preference.OnPreferenceChangeListener,
+            PreferenceManager.OnPreferenceTreeClickListener {
 
-    @Override
-    public boolean onPreferenceTreeClick (PreferenceScreen preferenceScreen,
-                                   Preference pref) {
-        if (KEY_TIMER_ALARM_CUSTOM.equals(pref.getKey())){
-            setTimerAlarmSummary();
-            return true;
-        }
-        return false;
-    }
+        private static CharSequence[][] mTimezones;
+        private long mTime;
+        private RingtonePreference mTimerAlarmPref;
+        private final Handler mHandler = new Handler();
+        private TwoStatePreference mCustomTimerAlarm;
+        private NumberPickerPreference mSnoozeMinutes;
+        private AutoSilencePickerPreference mSilenceMinutes;
+        private TwoStatePreference mAnalogShowDateAndTime;
+        private TwoStatePreference mAnalogShowNumbers;
+        private TwoStatePreference mAnalogShowTicks;
 
-    private void updateSilenceAfterSummary(Preference pref,
-                                           int delay) {
-        int i = delay;
-        if (i == -1) {
-            pref.setSummary(R.string.auto_silence_never);
-        } else {
-            pref.setSummary(getString(R.string.auto_silence_summary, i));
-        }
-    }
+        private Context context;
 
-    private void notifyHomeTimeZoneChanged() {
-        Intent i = new Intent(Cities.WORLDCLOCK_UPDATE_INTENT);
-        sendBroadcast(i);
-    }
+        @Override
+        public void onCreatePreferences(Bundle bundle, String rootKey) {
+            context = getActivity();
+            addPreferencesFromResource(R.xml.settings);
+            // We don't want to reconstruct the timezone list every single time
+            // onResume() is called so we do it once in onCreate
+            ListPreference listPref;
+            listPref = (ListPreference) findPreference(KEY_HOME_TZ);
+            if (mTimezones == null) {
+                mTime = System.currentTimeMillis();
+                mTimezones = getAllTimezones();
+            }
 
-    private void addSettings() {
-        ListPreference listPref = (ListPreference) findPreference(KEY_CLOCK_STYLE);
-        listPref.setSummary(listPref.getEntry());
-        listPref.setOnPreferenceChangeListener(this);
-
-        Preference pref = findPreference(KEY_AUTO_HOME_CLOCK);
-        boolean state =((TwoStatePreference) pref).isChecked();
-        pref.setOnPreferenceChangeListener(this);
-
-        listPref = (ListPreference)findPreference(KEY_HOME_TZ);
-        listPref.setEnabled(state);
-        listPref.setSummary(listPref.getEntry());
-        listPref.setOnPreferenceChangeListener(this);
-
-        listPref = (ListPreference) findPreference(KEY_VOLUME_BUTTONS);
-        listPref.setSummary(listPref.getEntry());
-        listPref.setOnPreferenceChangeListener(this);
-
-        final SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        final boolean hasAccelSensor = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).size() >= 1;
-        final boolean hasProxiSensor = sensorManager.getSensorList(Sensor.TYPE_PROXIMITY).size() >= 1;
-        final PreferenceCategory alarmCategory = (PreferenceCategory) findPreference(
-                        KEY_ALARM_ACTION_CATEGORY);
-
-        listPref = (ListPreference) findPreference(KEY_FLIP_ACTION);
-        if (hasAccelSensor) {
+            listPref.setEntryValues(mTimezones[0]);
+            listPref.setEntries(mTimezones[1]);
             listPref.setSummary(listPref.getEntry());
             listPref.setOnPreferenceChangeListener(this);
-        } else {
-            alarmCategory.removePreference(listPref);
-        }
 
-        listPref = (ListPreference) findPreference(KEY_SHAKE_ACTION);
-        if (hasAccelSensor) {
-            listPref.setSummary(listPref.getEntry());
-            listPref.setOnPreferenceChangeListener(this);
-        } else {
-            alarmCategory.removePreference(listPref);
-        }
-        listPref = (ListPreference) findPreference(KEY_WAVE_ACTION);
-        if (hasProxiSensor) {
-            listPref.setSummary(listPref.getEntry());
-            listPref.setOnPreferenceChangeListener(this);
-        } else {
-            alarmCategory.removePreference(listPref);
-        }
+            mTimerAlarmPref = (RingtonePreference) findPreference(KEY_TIMER_ALARM);
+            mTimerAlarmPref.owningFragment = this;
+            mTimerAlarmPref.setOnPreferenceChangeListener(this);
 
-        listPref = (ListPreference) findPreference(KEY_ALARM_SNOOZE_COUNT);
-        listPref.setSummary(listPref.getEntry());
-        listPref.setOnPreferenceChangeListener(this);
+            mSnoozeMinutes = (NumberPickerPreference) findPreference(KEY_ALARM_SNOOZE_MINUTES);
+            mSnoozeMinutes.setValue(Utils.getSnoozeTimeoutValue(context));
+            mSnoozeMinutes.setMinValue(1);
+            mSnoozeMinutes.setMaxValue(30);
 
-        listPref = (ListPreference) findPreference(KEY_VOLUME_INCREASE_SPEED);
-        listPref.setSummary(listPref.getEntry());
-        listPref.setOnPreferenceChangeListener(this);
+            mSnoozeMinutes.setSummary(getSnoozedMinutes(mSnoozeMinutes.getValue()));
+            mSnoozeMinutes.setOnPreferenceChangeListener(this);
 
-        listPref = (ListPreference) findPreference(KEY_WEEK_START);
-        listPref.setEntries(getWeekdays());
-        listPref.setSummary(listPref.getEntry());
-        listPref.setOnPreferenceChangeListener(this);
+            mSilenceMinutes = (AutoSilencePickerPreference) findPreference(KEY_ALARM_SILENCE_AFTER);
+            mSilenceMinutes.setValue(Utils.getTimeoutValue(context));
+            mSilenceMinutes.setMinValue(1);
+            mSilenceMinutes.setMaxValue(30);
 
-        listPref = (ListPreference) findPreference(KEY_AUDIO_STREAM);
-        listPref.setSummary(listPref.getEntry());
-        listPref.setOnPreferenceChangeListener(this);
+            updateSilenceAfterSummary(mSilenceMinutes, mSilenceMinutes.getValue());
+            mSilenceMinutes.setOnPreferenceChangeListener(this);
 
-        listPref = (ListPreference) findPreference(KEY_TIMER_ALARM_INCREASE_VOLUME_SPEED);
-        listPref.setSummary(listPref.getEntry());
-        listPref.setOnPreferenceChangeListener(this);
+            mAnalogShowDateAndTime = (TwoStatePreference) findPreference(KEY_ANALOG_SHOW_DATE);
+            mAnalogShowNumbers = (TwoStatePreference) findPreference(KEY_ANALOG_SHOW_NUMBERS);
+            mAnalogShowTicks = (TwoStatePreference) findPreference(KEY_ANALOG_SHOW_TICKS);
 
-        mCustomTimerAlarm = (TwoStatePreference) findPreference(KEY_TIMER_ALARM_CUSTOM);
+            updateClockStyleDeps(Utils.isClockStyleAnalog(context));
 
-        listPref = (ListPreference) findPreference(KEY_PRE_ALARM_NOTIFICATION_TIME);
-        listPref.setSummary(listPref.getEntry());
-        listPref.setOnPreferenceChangeListener(this);
+            addSettings();
 
-        listPref = (ListPreference) findPreference(KEY_COLOR_THEME);
-        listPref.setSummary(listPref.getEntry());
-        listPref.setOnPreferenceChangeListener(this);
-
-        listPref = (ListPreference) findPreference(KEY_DEFAULT_PAGE);
-        listPref.setSummary(listPref.getEntry());
-        listPref.setOnPreferenceChangeListener(this);
-    }
-
-    private class TimeZoneRow implements Comparable<TimeZoneRow> {
-        private static final boolean SHOW_DAYLIGHT_SAVINGS_INDICATOR = false;
-
-        public final String mId;
-        public final String mDisplayName;
-        public final int mOffset;
-
-        public TimeZoneRow(String id, String name) {
-            mId = id;
-            TimeZone tz = TimeZone.getTimeZone(id);
-            boolean useDaylightTime = tz.useDaylightTime();
-            mOffset = tz.getOffset(mTime);
-            mDisplayName = buildGmtDisplayName(id, name, useDaylightTime);
+            if (!getResources().getBoolean(R.bool.config_disableSensorOnWirelessCharging)) {
+                Preference p = findPreference(KEY_ALARM_ACTION_WIRELESS_HEADER);
+                PreferenceCategory alarmActionsCategory = (PreferenceCategory) findPreference(KEY_ALARM_ACTION_CATEGORY);
+                alarmActionsCategory.removePreference(p);
+            }
         }
 
         @Override
-        public int compareTo(TimeZoneRow another) {
-            return mOffset - another.mOffset;
+        public void onResume() {
+            super.onResume();
+            lookupRingtoneNames();
         }
 
-        public String buildGmtDisplayName(String id, String displayName, boolean useDaylightTime) {
-            int p = Math.abs(mOffset);
-            StringBuilder name = new StringBuilder("(GMT");
-            name.append(mOffset < 0 ? '-' : '+');
-
-            name.append(p / DateUtils.HOUR_IN_MILLIS);
-            name.append(':');
-
-            int min = p / 60000;
-            min %= 60;
-
-            if (min < 10) {
-                name.append('0');
-            }
-            name.append(min);
-            name.append(") ");
-            name.append(displayName);
-            if (useDaylightTime && SHOW_DAYLIGHT_SAVINGS_INDICATOR) {
-                name.append(" \u2600"); // Sun symbol
-            }
-            return name.toString();
+        public void onActivityResult(int requestCode, int resultCode, Intent data) {
+            mTimerAlarmPref.onActivityResult(requestCode,resultCode,data);
         }
-    }
 
-    /**
-     * Returns an array of ids/time zones. This returns a double indexed array
-     * of ids and time zones for Calendar. It is an inefficient method and
-     * shouldn't be called often, but can be used for one time generation of
-     * this list.
-     *
-     * @return double array of tz ids and tz names
-     */
-    public CharSequence[][] getAllTimezones() {
-        Resources resources = this.getResources();
-        String[] ids = resources.getStringArray(R.array.timezone_values);
-        String[] labels = resources.getStringArray(R.array.timezone_labels);
-        int minLength = ids.length;
-        if (ids.length != labels.length) {
-            minLength = Math.min(minLength, labels.length);
-            LogUtils.e("Timezone ids and labels have different length!");
-        }
-        List<TimeZoneRow> timezones = new ArrayList<TimeZoneRow>();
-        for (int i = 0; i < minLength; i++) {
-            timezones.add(new TimeZoneRow(ids[i], labels[i]));
-        }
-        Collections.sort(timezones);
-
-        CharSequence[][] timeZones = new CharSequence[2][timezones.size()];
-        int i = 0;
-        for (TimeZoneRow row : timezones) {
-            timeZones[0][i] = row.mId;
-            timeZones[1][i++] = row.mDisplayName;
-        }
-        return timeZones;
-    }
-
-    private void setTimerAlarmSummary() {
-        Uri defaultAlarmNoise = RingtoneManager.getActualDefaultRingtoneUri(this,
-                RingtoneManager.TYPE_ALARM);
-
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String soundValue = prefs.getString(KEY_TIMER_ALARM, null);
-        Uri soundUri = null;
-        if (!mCustomTimerAlarm.isChecked()) {
-            soundUri = TextUtils.isEmpty(soundValue) ? defaultAlarmNoise : Uri.parse(soundValue);
-        } else {
-            // we can have the None alarm tone which is empty
-            soundUri = TextUtils.isEmpty(soundValue) ? null : Uri.parse(soundValue);
-        }
-        final Ringtone tone = soundUri != null ? RingtoneManager.getRingtone(this, soundUri) : null;
-
-        mHandler.post(new Runnable() {
             @Override
-            public void run() {
-                mTimerAlarmPref.setSummary(tone != null ?
-                        tone.getTitle(SettingsActivity.this) :
-                        getResources().getString(R.string.ringtone_disabled));
+        public boolean onPreferenceChange(Preference pref, Object newValue) {
+            if (KEY_CLOCK_STYLE.equals(pref.getKey())) {
+                final ListPreference listPref = (ListPreference) pref;
+                final int idx = listPref.findIndexOfValue((String) newValue);
+                listPref.setSummary(listPref.getEntries()[idx]);
+                updateClockStyleDeps(newValue.equals(Utils.CLOCK_TYPE_ANALOG));
+            } else if (KEY_HOME_TZ.equals(pref.getKey())) {
+                final ListPreference listPref = (ListPreference) pref;
+                final int idx = listPref.findIndexOfValue((String) newValue);
+                listPref.setSummary(listPref.getEntries()[idx]);
+                notifyHomeTimeZoneChanged();
+            } else if (KEY_AUTO_HOME_CLOCK.equals(pref.getKey())) {
+                boolean state = ((TwoStatePreference) pref).isChecked();
+                Preference homeTimeZone = findPreference(KEY_HOME_TZ);
+                homeTimeZone.setEnabled(!state);
+                notifyHomeTimeZoneChanged();
+            } else if (KEY_VOLUME_BUTTONS.equals(pref.getKey())) {
+                final ListPreference listPref = (ListPreference) pref;
+                final int idx = listPref.findIndexOfValue((String) newValue);
+                listPref.setSummary(listPref.getEntries()[idx]);
+            } else if (KEY_ALARM_SNOOZE_MINUTES.equals(pref.getKey())) {
+                mSnoozeMinutes.setSummary(getSnoozedMinutes((Integer) newValue));
+            } else if (KEY_ALARM_SILENCE_AFTER.equals(pref.getKey())) {
+                updateSilenceAfterSummary(pref, (Integer) newValue);
+            } else if (KEY_ALARM_SNOOZE_COUNT.equals(pref.getKey())) {
+                final ListPreference listPref = (ListPreference) pref;
+                final int idx = listPref.findIndexOfValue((String) newValue);
+                listPref.setSummary(listPref.getEntries()[idx]);
+            } else if (KEY_FLIP_ACTION.equals(pref.getKey())) {
+                final ListPreference listPref = (ListPreference) pref;
+                final int idx = listPref.findIndexOfValue((String) newValue);
+                listPref.setSummary(listPref.getEntries()[idx]);
+            } else if (KEY_SHAKE_ACTION.equals(pref.getKey())) {
+                final ListPreference listPref = (ListPreference) pref;
+                final int idx = listPref.findIndexOfValue((String) newValue);
+                listPref.setSummary(listPref.getEntries()[idx]);
+            } else if (KEY_WAVE_ACTION.equals(pref.getKey())) {
+                final ListPreference listPref = (ListPreference) pref;
+                final int idx = listPref.findIndexOfValue((String) newValue);
+                listPref.setSummary(listPref.getEntries()[idx]);
+            } else if (KEY_VOLUME_INCREASE_SPEED.equals(pref.getKey())) {
+                final ListPreference listPref = (ListPreference) pref;
+                final int idx = listPref.findIndexOfValue((String) newValue);
+                listPref.setSummary(listPref.getEntries()[idx]);
+            } else if (KEY_WEEK_START.equals(pref.getKey())) {
+                final ListPreference listPref = (ListPreference) pref;
+                final int idx = listPref.findIndexOfValue((String) newValue);
+                listPref.setSummary(listPref.getEntries()[idx]);
+            } else if (KEY_AUDIO_STREAM.equals(pref.getKey())) {
+                final ListPreference listPref = (ListPreference) pref;
+                final int idx = listPref.findIndexOfValue((String) newValue);
+                listPref.setSummary(listPref.getEntries()[idx]);
+            } else if (KEY_TIMER_ALARM_INCREASE_VOLUME_SPEED.equals(pref.getKey())) {
+                final ListPreference listPref = (ListPreference) pref;
+                final int idx = listPref.findIndexOfValue((String) newValue);
+                listPref.setSummary(listPref.getEntries()[idx]);
+            } else if (KEY_PRE_ALARM_NOTIFICATION_TIME.equals(pref.getKey())) {
+                final ListPreference listPref = (ListPreference) pref;
+                final int idx = listPref.findIndexOfValue((String) newValue);
+                listPref.setSummary(listPref.getEntries()[idx]);
+            } else if (KEY_COLOR_THEME.equals(pref.getKey())) {
+                final ListPreference listPref = (ListPreference) pref;
+                final int idx = listPref.findIndexOfValue((String) newValue);
+                listPref.setSummary(listPref.getEntries()[idx]);
+                notifyColorThemeChanged();
+            } else if (KEY_DEFAULT_PAGE.equals(pref.getKey())) {
+                final ListPreference listPref = (ListPreference) pref;
+                final int idx = listPref.findIndexOfValue((String) newValue);
+                listPref.setSummary(listPref.getEntries()[idx]);
             }
-        });
-    }
 
-    private void lookupRingtoneNames() {
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
+            return true;
+        }
+
+        @Override
+        public boolean onPreferenceTreeClick(Preference pref) {
+            if (KEY_TIMER_ALARM_CUSTOM.equals(pref.getKey())) {
                 setTimerAlarmSummary();
+                return true;
             }
-        });
-    }
+            return false;
+        }
 
-    private String[] getWeekdays() {
-        DateFormatSymbols dfs = new DateFormatSymbols();
-        List<String> weekDayList = new ArrayList<String>();
-        weekDayList.addAll(Arrays.asList(dfs.getWeekdays()));
-        weekDayList.set(0, getResources().getString(R.string.default_week_start));
-        return weekDayList.toArray(new String[weekDayList.size()]);
-    }
+        private void updateSilenceAfterSummary(Preference pref,
+                                               int delay) {
+            int i = delay;
+            if (i == -1) {
+                pref.setSummary(R.string.auto_silence_never);
+            } else {
+                pref.setSummary(getString(R.string.auto_silence_summary, i));
+            }
+        }
 
-    private void notifyColorThemeChanged() {
-        Intent i = new Intent();
-        i.setAction(DeskClock.COLOR_THEME_UPDATE_INTENT);
-        sendBroadcast(i);
-    }
+        private void notifyHomeTimeZoneChanged() {
+            Intent i = new Intent(Cities.WORLDCLOCK_UPDATE_INTENT);
+            context.sendBroadcast(i);
+        }
 
-    @Override
-    protected boolean isValidFragment(String fragmentName) {
-        return false;
-    }
+        private void addSettings() {
+            ListPreference listPref = (ListPreference) findPreference(KEY_CLOCK_STYLE);
+            listPref.setSummary(listPref.getEntry());
+            listPref.setOnPreferenceChangeListener(this);
 
-    private String getSnoozedMinutes(int snoozeMinutes) {
-        return getResources().getQuantityString(R.plurals.snooze_duration,
-                snoozeMinutes, snoozeMinutes);
-    }
+            Preference pref = findPreference(KEY_AUTO_HOME_CLOCK);
+            boolean state = ((TwoStatePreference) pref).isChecked();
+            pref.setOnPreferenceChangeListener(this);
 
-    private void updateClockStyleDeps(boolean isAnalog) {
-        mAnalogShowDateAndTime.setEnabled(isAnalog);
-        mAnalogShowNumbers.setEnabled(isAnalog);
-        mAnalogShowTicks.setEnabled(isAnalog);
+            listPref = (ListPreference) findPreference(KEY_HOME_TZ);
+            listPref.setEnabled(state);
+            listPref.setSummary(listPref.getEntry());
+            listPref.setOnPreferenceChangeListener(this);
+
+            listPref = (ListPreference) findPreference(KEY_VOLUME_BUTTONS);
+            listPref.setSummary(listPref.getEntry());
+            listPref.setOnPreferenceChangeListener(this);
+
+            final SensorManager sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+            final boolean hasAccelSensor = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).size() >= 1;
+            final boolean hasProxiSensor = sensorManager.getSensorList(Sensor.TYPE_PROXIMITY).size() >= 1;
+            final PreferenceCategory alarmCategory = (PreferenceCategory) findPreference(
+                    KEY_ALARM_ACTION_CATEGORY);
+
+            listPref = (ListPreference) findPreference(KEY_FLIP_ACTION);
+            if (hasAccelSensor) {
+                listPref.setSummary(listPref.getEntry());
+                listPref.setOnPreferenceChangeListener(this);
+            } else {
+                alarmCategory.removePreference(listPref);
+            }
+
+            listPref = (ListPreference) findPreference(KEY_SHAKE_ACTION);
+            if (hasAccelSensor) {
+                listPref.setSummary(listPref.getEntry());
+                listPref.setOnPreferenceChangeListener(this);
+            } else {
+                alarmCategory.removePreference(listPref);
+            }
+            listPref = (ListPreference) findPreference(KEY_WAVE_ACTION);
+            if (hasProxiSensor) {
+                listPref.setSummary(listPref.getEntry());
+                listPref.setOnPreferenceChangeListener(this);
+            } else {
+                alarmCategory.removePreference(listPref);
+            }
+
+            listPref = (ListPreference) findPreference(KEY_ALARM_SNOOZE_COUNT);
+            listPref.setSummary(listPref.getEntry());
+            listPref.setOnPreferenceChangeListener(this);
+
+            listPref = (ListPreference) findPreference(KEY_VOLUME_INCREASE_SPEED);
+            listPref.setSummary(listPref.getEntry());
+            listPref.setOnPreferenceChangeListener(this);
+
+            listPref = (ListPreference) findPreference(KEY_WEEK_START);
+            listPref.setEntries(getWeekdays());
+            listPref.setSummary(listPref.getEntry());
+            listPref.setOnPreferenceChangeListener(this);
+
+            listPref = (ListPreference) findPreference(KEY_AUDIO_STREAM);
+            listPref.setSummary(listPref.getEntry());
+            listPref.setOnPreferenceChangeListener(this);
+
+            listPref = (ListPreference) findPreference(KEY_TIMER_ALARM_INCREASE_VOLUME_SPEED);
+            listPref.setSummary(listPref.getEntry());
+            listPref.setOnPreferenceChangeListener(this);
+
+            mCustomTimerAlarm = (TwoStatePreference) findPreference(KEY_TIMER_ALARM_CUSTOM);
+
+            listPref = (ListPreference) findPreference(KEY_PRE_ALARM_NOTIFICATION_TIME);
+            listPref.setSummary(listPref.getEntry());
+            listPref.setOnPreferenceChangeListener(this);
+
+            listPref = (ListPreference) findPreference(KEY_COLOR_THEME);
+            listPref.setSummary(listPref.getEntry());
+            listPref.setOnPreferenceChangeListener(this);
+
+            listPref = (ListPreference) findPreference(KEY_DEFAULT_PAGE);
+            listPref.setSummary(listPref.getEntry());
+            listPref.setOnPreferenceChangeListener(this);
+        }
+
+        private class TimeZoneRow implements Comparable<TimeZoneRow> {
+            private static final boolean SHOW_DAYLIGHT_SAVINGS_INDICATOR = false;
+
+            public final String mId;
+            public final String mDisplayName;
+            public final int mOffset;
+
+            public TimeZoneRow(String id, String name) {
+                mId = id;
+                TimeZone tz = TimeZone.getTimeZone(id);
+                boolean useDaylightTime = tz.useDaylightTime();
+                mOffset = tz.getOffset(mTime);
+                mDisplayName = buildGmtDisplayName(id, name, useDaylightTime);
+            }
+
+            @Override
+            public int compareTo(TimeZoneRow another) {
+                return mOffset - another.mOffset;
+            }
+
+            public String buildGmtDisplayName(String id, String displayName, boolean useDaylightTime) {
+                int p = Math.abs(mOffset);
+                StringBuilder name = new StringBuilder("(GMT");
+                name.append(mOffset < 0 ? '-' : '+');
+
+                name.append(p / DateUtils.HOUR_IN_MILLIS);
+                name.append(':');
+
+                int min = p / 60000;
+                min %= 60;
+
+                if (min < 10) {
+                    name.append('0');
+                }
+                name.append(min);
+                name.append(") ");
+                name.append(displayName);
+                if (useDaylightTime && SHOW_DAYLIGHT_SAVINGS_INDICATOR) {
+                    name.append(" \u2600"); // Sun symbol
+                }
+                return name.toString();
+            }
+        }
+
+        /**
+         * Returns an array of ids/time zones. This returns a double indexed array
+         * of ids and time zones for Calendar. It is an inefficient method and
+         * shouldn't be called often, but can be used for one time generation of
+         * this list.
+         *
+         * @return double array of tz ids and tz names
+         */
+        public CharSequence[][] getAllTimezones() {
+            Resources resources = this.getResources();
+            String[] ids = resources.getStringArray(R.array.timezone_values);
+            String[] labels = resources.getStringArray(R.array.timezone_labels);
+            int minLength = ids.length;
+            if (ids.length != labels.length) {
+                minLength = Math.min(minLength, labels.length);
+                LogUtils.e("Timezone ids and labels have different length!");
+            }
+            List<TimeZoneRow> timezones = new ArrayList<TimeZoneRow>();
+            for (int i = 0; i < minLength; i++) {
+                timezones.add(new TimeZoneRow(ids[i], labels[i]));
+            }
+            Collections.sort(timezones);
+
+            CharSequence[][] timeZones = new CharSequence[2][timezones.size()];
+            int i = 0;
+            for (TimeZoneRow row : timezones) {
+                timeZones[0][i] = row.mId;
+                timeZones[1][i++] = row.mDisplayName;
+            }
+            return timeZones;
+        }
+
+        private void setTimerAlarmSummary() {
+            Uri defaultAlarmNoise = RingtoneManager.getActualDefaultRingtoneUri(context,
+                    RingtoneManager.TYPE_ALARM);
+
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+            String soundValue = prefs.getString(KEY_TIMER_ALARM, null);
+            Uri soundUri = null;
+            if (!mCustomTimerAlarm.isChecked()) {
+                soundUri = TextUtils.isEmpty(soundValue) ? defaultAlarmNoise : Uri.parse(soundValue);
+            } else {
+                // we can have the None alarm tone which is empty
+                soundUri = TextUtils.isEmpty(soundValue) ? null : Uri.parse(soundValue);
+            }
+            final Ringtone tone = soundUri != null ? RingtoneManager.getRingtone(context, soundUri) : null;
+
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    mTimerAlarmPref.setSummary(tone != null ?
+                            tone.getTitle(context) :
+                            getResources().getString(R.string.ringtone_disabled));
+                }
+            });
+        }
+
+        private void lookupRingtoneNames() {
+            AsyncTask.execute(new Runnable() {
+                @Override
+                public void run() {
+                    setTimerAlarmSummary();
+                }
+            });
+        }
+
+        private String[] getWeekdays() {
+            DateFormatSymbols dfs = new DateFormatSymbols();
+            List<String> weekDayList = new ArrayList<String>();
+            weekDayList.addAll(Arrays.asList(dfs.getWeekdays()));
+            weekDayList.set(0, getResources().getString(R.string.default_week_start));
+            return weekDayList.toArray(new String[weekDayList.size()]);
+        }
+
+        private void notifyColorThemeChanged() {
+            Intent i = new Intent();
+            i.setAction(DeskClock.COLOR_THEME_UPDATE_INTENT);
+            context.sendBroadcast(i);
+        }
+
+        private String getSnoozedMinutes(int snoozeMinutes) {
+            return getResources().getQuantityString(R.plurals.snooze_duration,
+                    snoozeMinutes, snoozeMinutes);
+        }
+
+        private void updateClockStyleDeps(boolean isAnalog) {
+            mAnalogShowDateAndTime.setEnabled(isAnalog);
+            mAnalogShowNumbers.setEnabled(isAnalog);
+            mAnalogShowTicks.setEnabled(isAnalog);
+        }
     }
 }

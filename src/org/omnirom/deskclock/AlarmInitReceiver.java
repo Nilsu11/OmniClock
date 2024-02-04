@@ -21,7 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.PowerManager.WakeLock;
-import android.preference.PreferenceManager;
+import androidx.preference.PreferenceManager;
 
 import org.omnirom.deskclock.alarms.AlarmStateManager;
 

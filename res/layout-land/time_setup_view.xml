@@ -14,6 +14,7 @@
      limitations under the License.
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -26,7 +27,6 @@
         <!-- This nested ltr layout cannot be combined with the parent because
              in RTL, the Keypad and Timer value should swap. -->
         <LinearLayout
-            android:id="@+id/timer_time_display"
             android:layout_width="0dip"
             android:layout_height="match_parent"
             android:layout_weight="3"
@@ -34,56 +34,22 @@
             android:gravity="center"
             android:orientation="vertical">
 
-            <org.omnirom.deskclock.timer.TimerView
+            <TextView
                 android:id="@+id/timer_time_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical">
-
-                <include layout="@layout/timer_h_mm_ss_view" />
-
-                <ImageButton
-                    android:id="@+id/delete"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="@dimen/timer_setup_delete_start_margin"
-                    android:padding="@dimen/timer_setup_delete_padding"
-                    android:contentDescription="@string/timer_delete"
-                    android:src="@drawable/ic_backspace"
-                    android:background="?android:attr/selectableItemBackgroundBorderless" />
-
-            </org.omnirom.deskclock.timer.TimerView>
-
-            <View
-                android:id="@+id/divider"
-                android:layout_width="match_parent"
-                android:layout_height="2dip"
-                android:layout_marginBottom="8dip"
-                android:background="@color/dialog_gray" />
+                android:gravity="center_vertical" />
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="0dip"
+        <include
+            layout="@layout/timer_setup_digits"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="2"
-            android:orientation="vertical">
+            android:layout_weight="2"/>
 
-            <include
-                android:id="@+id/first"
-                layout="@layout/three_keys_view" />
-            <include
-                android:id="@+id/second"
-                layout="@layout/three_keys_view" />
-            <include
-                android:id="@+id/third"
-                layout="@layout/three_keys_view" />
-            <include
-                android:id="@+id/fourth"
-                layout="@layout/three_keys_view" />
-
-        </LinearLayout>
 
     </LinearLayout>
 

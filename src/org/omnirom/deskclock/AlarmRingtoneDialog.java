@@ -18,16 +18,9 @@
 
 package org.omnirom.deskclock;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -38,24 +31,32 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.OpenableColumns;
-import android.support.v13.app.FragmentCompat;
-import android.support.v4.content.ContextCompat;
+
+import androidx.fragment.app.Fragment;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDialog;
+import androidx.appcompat.app.AppCompatDialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.LinearLayout;
 
 import org.omnirom.deskclock.alarms.AlarmConstants;
 import org.omnirom.deskclock.provider.Alarm;
 
-public class AlarmRingtoneDialog extends DialogFragment implements
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+public class AlarmRingtoneDialog extends AppCompatDialogFragment implements
         DialogInterface.OnClickListener,
         SeekBar.OnSeekBarChangeListener,
         StorageChooserDialog.ChosenStorageListener {
@@ -134,7 +135,7 @@ public class AlarmRingtoneDialog extends DialogFragment implements
     }
 
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
+    public AppCompatDialog onCreateDialog(Bundle savedInstanceState) {
         Bundle bundle = getArguments();
         mAlarm = bundle.getParcelable(KEY_ALARM);
         mTag = bundle.getString(KEY_TAG);
@@ -230,7 +231,7 @@ public class AlarmRingtoneDialog extends DialogFragment implements
     }
 
     private View createDialogView() {
-        final Activity activity = getActivity();
+        final AppCompatActivity activity = (AppCompatActivity) getActivity();
         final LayoutInflater inflater = (LayoutInflater) activity
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View view = inflater
@@ -379,8 +380,7 @@ public class AlarmRingtoneDialog extends DialogFragment implements
     private void checkStoragePermissions(Runnable runAfter) {
         boolean needRequest = false;
         String[] permissions = {
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                android.Manifest.permission.READ_EXTERNAL_STORAGE
+                Manifest.permission.READ_MEDIA_AUDIO
         };
         ArrayList<String> permissionList = new ArrayList<String>();
         for (String permission : permissions) {
@@ -398,7 +398,7 @@ public class AlarmRingtoneDialog extends DialogFragment implements
                 for (int i = 0; i < count; i++) {
                     permissionArray[i] = permissionList.get(i);
                 }
-                FragmentCompat.requestPermissions(this, permissionArray, PERMISSIONS_REQUEST_EXTERNAL_STORAGE);
+                requestPermissions(permissionArray, PERMISSIONS_REQUEST_EXTERNAL_STORAGE);
             }
         } else {
             runAfter.run();
@@ -680,7 +680,7 @@ public class AlarmRingtoneDialog extends DialogFragment implements
     private void closeAlarmTestDialog() {
         final Fragment prev = getFragmentManager().findFragmentByTag("alarm_test");
         if (prev != null) {
-            ((DialogFragment) prev).dismiss();
+            ((AppCompatDialogFragment) prev).dismiss();
         }
     }
 
@@ -858,7 +858,7 @@ public class AlarmRingtoneDialog extends DialogFragment implements
     private void closeStoragePicker() {
         final Fragment prev = getFragmentManager().findFragmentByTag("choose_dialog");
         if (prev != null) {
-            ((DialogFragment) prev).dismiss();
+            ((AppCompatDialogFragment) prev).dismiss();
         }
     }
 

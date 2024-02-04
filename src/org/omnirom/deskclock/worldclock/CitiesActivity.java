@@ -17,8 +17,6 @@
 package org.omnirom.deskclock.worldclock;
 
 import android.Manifest;
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -26,21 +24,25 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+import androidx.preference.PreferenceManager;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.MenuItemCompat;
+import androidx.core.view.MenuItemCompat.OnActionExpandListener;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.SearchView.OnQueryTextListener;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MenuItem.OnActionExpandListener;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-
 import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
@@ -50,13 +52,11 @@ import android.widget.Filter;
 import android.widget.Filter.FilterListener;
 import android.widget.Filterable;
 import android.widget.ListView;
-import android.widget.SearchView;
-import android.widget.SearchView.OnQueryTextListener;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.omnirom.deskclock.SettingsActivity;
+import org.omnirom.deskclock.R;
 import org.omnirom.deskclock.Utils;
 import org.omnirom.deskclock.worldclock.db.DbCities;
 import org.omnirom.deskclock.worldclock.db.DbCity;
@@ -66,7 +66,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -74,7 +73,7 @@ import java.util.TimeZone;
 /**
  * Cities chooser for the world clock
  */
-public class CitiesActivity extends Activity implements OnCheckedChangeListener,
+public class CitiesActivity extends AppCompatActivity implements OnCheckedChangeListener,
         View.OnClickListener, View.OnLongClickListener, OnQueryTextListener,
         AddCityDialog.OnCitySelected, FilterListener {
 
@@ -279,7 +278,7 @@ public class CitiesActivity extends Activity implements OnCheckedChangeListener,
             Resources res = context.getResources();
 
             mNormalCityFgColor = Utils.getColorAttr(context, android.R.attr.textColorPrimary);
-            mUserDefinedCityFgColor = res.getColor(org.omnirom.deskclock.R.color.primary);
+            mUserDefinedCityFgColor = Utils.getColorAttr(context, R.attr.colorPrimary);
 
             mPattern24 = DateFormat.getBestDateTimePattern(Locale.getDefault(), "Hm");
 
@@ -531,7 +530,7 @@ public class CitiesActivity extends Activity implements OnCheckedChangeListener,
             mSearchMode = savedInstanceState.getBoolean(KEY_SEARCH_MODE);
             mPosition = savedInstanceState.getInt(KEY_LIST_POSITION);
         }
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         updateLayout();
     }
@@ -654,11 +653,11 @@ public class CitiesActivity extends Activity implements OnCheckedChangeListener,
 
         MenuItem search = menu.findItem(org.omnirom.deskclock.R.id.menu_item_search);
         if (search != null) {
-            search.setOnActionExpandListener(new SearchActionExpandListener(menu));
+            MenuItemCompat.setOnActionExpandListener(search, new SearchActionExpandListener(menu));
         }
 
         MenuItem searchMenu = menu.findItem(org.omnirom.deskclock.R.id.menu_item_search);
-        mSearchView = (SearchView) searchMenu.getActionView();
+        mSearchView = (SearchView) MenuItemCompat.getActionView(searchMenu);
         mSearchView.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_ACTION_DONE);
         mSearchView.setOnSearchClickListener(new OnClickListener() {
 

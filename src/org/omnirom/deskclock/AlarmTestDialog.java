@@ -18,26 +18,27 @@
 
 package org.omnirom.deskclock;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Handler;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDialog;
+import androidx.appcompat.app.AppCompatDialogFragment;
 
 import org.omnirom.deskclock.alarms.TestAlarmKlaxon;
 import org.omnirom.deskclock.provider.Alarm;
 
-public class AlarmTestDialog extends DialogFragment implements
+public class AlarmTestDialog extends AppCompatDialogFragment implements
         DialogInterface.OnClickListener {
 
     private static final String KEY_PREALARM = "preAlarm";
@@ -73,7 +74,7 @@ public class AlarmTestDialog extends DialogFragment implements
     }
 
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
+    public AppCompatDialog onCreateDialog(Bundle savedInstanceState) {
         Bundle bundle = getArguments();
         mAlarm = bundle.getParcelable(KEY_ALARM);
         mPreAlarm = bundle.getBoolean(KEY_PREALARM);
@@ -90,12 +91,12 @@ public class AlarmTestDialog extends DialogFragment implements
 
     @Override
     public void onClick(DialogInterface dialog, int which) {
-        TestAlarmKlaxon.stopTest(mAlarm);
+        TestAlarmKlaxon.stopTest();
     }
 
     @Override
     public void onDismiss(DialogInterface dialog) {
-        TestAlarmKlaxon.stopTest(mAlarm);
+        TestAlarmKlaxon.stopTest();
     }
 
     @Override
@@ -183,7 +184,7 @@ public class AlarmTestDialog extends DialogFragment implements
     }
 
     private View createDialogView() {
-        final Activity activity = getActivity();
+        final AppCompatActivity activity = (AppCompatActivity) getActivity();
         final LayoutInflater inflater = (LayoutInflater) activity
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View view = inflater

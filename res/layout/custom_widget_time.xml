@@ -21,7 +21,7 @@
     android:orientation="vertical"
     android:layout_gravity="center"
     android:baselineAligned="false"
-    android:background="?android:attr/selectableItemBackground"
+    android:background="?attr/selectableItemBackground"
     >
 
     <ImageView

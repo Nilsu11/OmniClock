@@ -9,9 +9,9 @@ import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Handler;
 import android.provider.Settings;
+import androidx.appcompat.widget.AppCompatTextView;
 import android.text.format.DateFormat;
 import android.util.AttributeSet;
-import android.widget.TextView;
 
 import org.omnirom.deskclock.Utils;
 
@@ -21,7 +21,7 @@ import java.util.Calendar;
  * Based on {@link android.widget.TextClock}, This widget displays a constant time of day using
  * format specifiers. {@link android.widget.TextClock} Doesn't support a non ticking clock.
  */
-public class TextTime extends TextView {
+public class TextTime extends AppCompatTextView {
     public static final CharSequence DEFAULT_FORMAT_12_HOUR = "h:mm a";
 
     public static final CharSequence DEFAULT_FORMAT_24_HOUR = "H:mm";

@@ -20,10 +20,10 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
-import android.support.annotation.StringDef;
-import android.support.v4.app.NotificationCompat;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.StringDef;
+import androidx.core.app.NotificationCompat;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 

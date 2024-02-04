@@ -23,7 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.IBinder;
-import android.support.v4.app.NotificationCompat;
+import androidx.core.app.NotificationCompat;
 
 import org.omnirom.deskclock.AlarmAlertWakeLock;
 import org.omnirom.deskclock.AlarmUtils;
@@ -142,7 +142,7 @@ public class AlarmService extends Service {
         }
 
         // Close dialogs and window shade, so this will display
-        context.sendBroadcast(new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
+        //context.sendBroadcast(new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
 
         String alarmName = null;
         if (instance.mAlarmState == AlarmInstance.PRE_ALARM_STATE) {
@@ -161,7 +161,7 @@ public class AlarmService extends Service {
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setLocalOnly(true)
-                .setColor(resources.getColor(org.omnirom.deskclock.R.color.primary));
+                .setColor(Utils.getColorAttr(context, org.omnirom.deskclock.R.attr.colorPrimary));
 
         notification.setGroup("GROUP");
         notification.setGroupSummary(true);
@@ -175,7 +175,7 @@ public class AlarmService extends Service {
                     AlarmStateManager.ALARM_SNOOZE_TAG, instance, AlarmInstance.SNOOZE_STATE);
             PendingIntent snoozePendingIntent = PendingIntent.getBroadcast(context, instance.hashCode(),
                     snoozeIntent,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
             notification.addAction(org.omnirom.deskclock.R.drawable.ic_notify_snooze,
                     resources.getString(org.omnirom.deskclock.R.string.alarm_alert_snooze_text), snoozePendingIntent);
         }
@@ -184,7 +184,7 @@ public class AlarmService extends Service {
         Intent dismissIntent = AlarmStateManager.createStateChangeIntent(context,
                 AlarmStateManager.ALARM_DISMISS_TAG, instance, AlarmInstance.DISMISSED_STATE);
         PendingIntent dismissPendingIntent = PendingIntent.getBroadcast(context,
-                instance.hashCode(), dismissIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                instance.hashCode(), dismissIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         notification.addAction(org.omnirom.deskclock.R.drawable.ic_notify_alarm_off,
                 resources.getString(org.omnirom.deskclock.R.string.alarm_alert_dismiss_text),
                 dismissPendingIntent);
@@ -193,7 +193,7 @@ public class AlarmService extends Service {
         Intent contentIntent = AlarmInstance.createIntent(context, AlarmActivity.class,
                 instance.mId);
         notification.setContentIntent(PendingIntent.getActivity(context,
-                instance.hashCode(), contentIntent, PendingIntent.FLAG_UPDATE_CURRENT));
+                instance.hashCode(), contentIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
 
         // Setup fullscreen intent
         Intent fullScreenIntent = AlarmInstance.createIntent(context, AlarmActivity.class,
@@ -204,7 +204,7 @@ public class AlarmService extends Service {
                 Intent.FLAG_ACTIVITY_NO_USER_ACTION);
         NotificationChannelManager.applyChannel(notification, context, Channel.EVENT_EXPIRED);
         notification.setFullScreenIntent(PendingIntent.getActivity(context,
-                instance.hashCode(), fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT), true);
+                instance.hashCode(), fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE), true);
         return notification.build();
     }
 }

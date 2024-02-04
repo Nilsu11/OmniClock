@@ -28,6 +28,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.omnirom.deskclock.Utils;
+
 class SlidingTabStrip extends LinearLayout {
 
     private static final int SELECTED_INDICATOR_THICKNESS_DIPS = 0;
@@ -65,7 +67,7 @@ class SlidingTabStrip extends LinearLayout {
 
         final float density = getResources().getDisplayMetrics().density;
 
-        mTextPrimaryColor = getResources().getColor(R.color.white);
+        mTextPrimaryColor = Utils.getColorAttr(context, R.attr.colorAccent);
 
         mTextPrimaryColorDisabled = setColorAlpha(mTextPrimaryColor,
                 getResources().getInteger(org.omnirom.deskclock.R.integer.disabled_text_alpha));

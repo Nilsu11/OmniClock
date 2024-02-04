@@ -16,11 +16,13 @@
 
 package org.omnirom.deskclock;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDialog;
+import androidx.appcompat.app.AppCompatDialogFragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -31,8 +33,6 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
-import android.content.DialogInterface;
-import android.content.Context;
 
 import org.omnirom.deskclock.provider.Alarm;
 import org.omnirom.deskclock.timer.TimerObj;
@@ -40,7 +40,7 @@ import org.omnirom.deskclock.timer.TimerObj;
 /**
  * DialogFragment to edit label.
  */
-public class LabelDialogFragment extends DialogFragment implements
+public class LabelDialogFragment extends AppCompatDialogFragment implements
         DialogInterface.OnClickListener {
 
     private static final String KEY_LABEL = "label";
@@ -75,7 +75,7 @@ public class LabelDialogFragment extends DialogFragment implements
     }
 
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
+    public AppCompatDialog onCreateDialog(Bundle savedInstanceState) {
         Bundle bundle = getArguments();
         mLabel = bundle.getString(KEY_LABEL);
         mAlarm = bundle.getParcelable(KEY_ALARM);
@@ -88,7 +88,7 @@ public class LabelDialogFragment extends DialogFragment implements
         .setNegativeButton(android.R.string.cancel, null)
         .setView(createDialogView());
 
-        Dialog d = builder.create();
+        AppCompatDialog d = builder.create();
         d.getWindow().setSoftInputMode(
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 
@@ -154,7 +154,7 @@ public class LabelDialogFragment extends DialogFragment implements
     }
 
     private void set(Alarm alarm, String tag, String label) {
-        final Activity activity = getActivity();
+        final AppCompatActivity activity = (AppCompatActivity) getActivity();
         // TODO just pass in a listener in newInstance()
         if (activity instanceof AlarmLabelDialogHandler) {
             ((DeskClock) getActivity()).onDialogLabelSet(alarm, label, tag);
@@ -166,7 +166,7 @@ public class LabelDialogFragment extends DialogFragment implements
     }
 
     private void set(TimerObj timer, String tag, String label) {
-        final Activity activity = getActivity();
+        final AppCompatActivity activity = (AppCompatActivity) getActivity();
         // TODO just pass in a listener in newInstance()
         if (activity instanceof TimerLabelDialogHandler){
             ((DeskClock) getActivity()).onDialogLabelSet(timer, label, tag);

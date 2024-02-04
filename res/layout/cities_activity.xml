@@ -29,10 +29,10 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="?android:attr/listPreferredItemHeightSmall"
+        android:layout_height="?attr/listPreferredItemHeightSmall"
         android:elevation="4dp"
         android:orientation="vertical"
-        android:background="?android:attr/colorPrimary"
+        android:background="?attr/colorPrimary"
         android:gravity="center_vertical">
 
         <TextView

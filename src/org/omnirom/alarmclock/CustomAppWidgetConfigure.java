@@ -25,19 +25,23 @@ import android.content.ContentResolver;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceManager;
+
+import androidx.fragment.app.Fragment;
+import androidx.preference.CheckBoxPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceManager;
 import android.view.View;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceFragmentCompat;
 
 import org.omnirom.deskclock.R;
 import org.omnirom.deskclock.Utils;
 import org.omnirom.deskclock.preference.FontPreference;
 import org.omnirom.deskclock.preference.ColorPickerPreference;
 
-public class CustomAppWidgetConfigure extends PreferenceActivity implements
-        Preference.OnPreferenceChangeListener {
+public class CustomAppWidgetConfigure extends AppCompatActivity {
 
     public static final String KEY_SHOW_ALARM = "show_alarm";
     public static final String KEY_SHOW_DATE = "show_date";
@@ -47,15 +51,17 @@ public class CustomAppWidgetConfigure extends PreferenceActivity implements
     public static final String KEY_WORLD_CLOCKS = "world_clocks";
 
     private int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
-    private FontPreference mClockFont;
-    private ColorPickerPreference mClockColor;
+
+    private PrefsFrag f;
+    public void handleOkClick(View v) {
+        f.handleOkClick(v);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setTheme(Utils.getThemeResourceId(this));
-        getListView().setBackgroundColor(Utils.getViewBackgroundColor(this));
 
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
@@ -71,42 +77,87 @@ public class CustomAppWidgetConfigure extends PreferenceActivity implements
             finish();
             return;
         }
+        f = new PrefsFrag();
+        setContentView(R.layout.settings_widget);
+        View v = findViewById(R.id.main);
+        v.setBackgroundColor(Utils.getViewBackgroundColor(this));
+        // Create the prefs fragment in code to ensure it's created before PreferenceDialogFragment
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.main, f, PREFS_FRAGMENT_TAG)
+                    .disallowAddToBackStack()
+                    .commit();
+        }
 
-        addPreferencesFromResource(R.xml.custom_appwidget_configure);
-        initPreference(KEY_SHOW_ALARM);
-        initPreference(KEY_SHOW_DATE);
-        initPreference(KEY_CLOCK_SHADOW);
-        initPreference(KEY_WORLD_CLOCKS);
-
-        mClockFont = (FontPreference) findPreference(KEY_CLOCK_FONT);
-        mClockFont.setKey(KEY_CLOCK_FONT + "_" + String.valueOf(mAppWidgetId));
-        mClockFont.setSummary("Roboto Light");
-        mClockFont.setOnPreferenceChangeListener(this);
-
-        mClockColor = (ColorPickerPreference) findPreference(KEY_CLOCK_COLOR);
-        mClockColor.setKey(KEY_CLOCK_COLOR + "_" + String.valueOf(mAppWidgetId));
-        mClockColor.setColor(Color.WHITE);
-        String hexColor = String.format("#%08X", Color.WHITE);
-        mClockColor.setSummary(hexColor);
-        mClockColor.setOnPreferenceChangeListener(this);
     }
 
-    public void handleOkClick(View v) {
-        CustomAppWidgetProvider.updateAfterConfigure(this, mAppWidgetId);
-        Intent resultValue = new Intent();
-        resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
-        setResult(RESULT_OK, resultValue);
-        finish();
+    private static final String PREFS_FRAGMENT_TAG = "prefs_fragment";
+
+    public static class PrefsFrag extends PreferenceFragmentCompat implements
+            Preference.OnPreferenceChangeListener {
+
+        private int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
+        private FontPreference mClockFont;
+
+        private ColorPickerPreference mClockColor;
+
+        @Override
+        public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
+
+            addPreferencesFromResource(R.xml.custom_appwidget_configure);
+            initPreference(KEY_SHOW_ALARM);
+            initPreference(KEY_SHOW_DATE);
+            initPreference(KEY_CLOCK_SHADOW);
+            initPreference(KEY_WORLD_CLOCKS);
+
+            mClockFont = (FontPreference) findPreference(KEY_CLOCK_FONT);
+            mClockFont.setKey(KEY_CLOCK_FONT + "_" + String.valueOf(mAppWidgetId));
+            mClockFont.setSummary("Roboto Light");
+            mClockFont.setOnPreferenceChangeListener(this);
+
+            mClockColor = (ColorPickerPreference) findPreference(KEY_CLOCK_COLOR);
+            mClockColor.setKey(KEY_CLOCK_COLOR + "_" + String.valueOf(mAppWidgetId));
+            mClockColor.setColor(Color.WHITE);
+            String hexColor = String.format("#%08X", Color.WHITE);
+            mClockColor.setSummary(hexColor);
+            mClockColor.setOnPreferenceChangeListener(this);
+
+
+        }
+
+        public void handleOkClick(View v) {
+            CustomAppWidgetProvider.updateAfterConfigure(getActivity(), mAppWidgetId);
+            Intent resultValue = new Intent();
+            resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
+            getActivity().setResult(RESULT_OK, resultValue);
+            getActivity().finish();
+        }
+
+        private void initPreference(String key) {
+            CheckBoxPreference b = (CheckBoxPreference) findPreference(key);
+            b.setKey(key + "_" + String.valueOf(mAppWidgetId));
+            b.setDefaultValue(true);
+            b.setChecked(true);
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            prefs.edit().putBoolean(b.getKey(), true).commit();
+        }
+
+        @Override
+        public boolean onPreferenceChange(Preference preference, Object newValue) {
+            if (preference == mClockFont) {
+                String value = (String) newValue;
+                int valueIndex = mClockFont.findIndexOfValue(value);
+                mClockFont.setSummary(mClockFont.getEntries()[valueIndex]);
+            } else if (preference == mClockColor) {
+                String hexColor = String.format("#%08X", mClockColor.getColor());
+                mClockColor.setSummary(hexColor);
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                prefs.edit().putInt(mClockColor.getKey(), mClockColor.getColor()).commit();
+            }
+            return true;
+        }
     }
 
-    private void initPreference(String key) {
-        CheckBoxPreference b = (CheckBoxPreference) findPreference(key);
-        b.setKey(key + "_" + String.valueOf(mAppWidgetId));
-        b.setDefaultValue(true);
-        b.setChecked(true);
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        prefs.edit().putBoolean(b.getKey(), true).commit();
-    }
 
     public static void clearPrefs(Context context, int id) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -141,26 +192,5 @@ public class CustomAppWidgetConfigure extends PreferenceActivity implements
         prefs.edit().remove(KEY_CLOCK_COLOR + "_" + oldId).commit();
         prefs.edit().remove(KEY_CLOCK_SHADOW + "_" + oldId).commit();
         prefs.edit().remove(KEY_WORLD_CLOCKS + "_" + oldId).commit();
-    }
-
-    @Override
-    public boolean onPreferenceChange(Preference preference, Object newValue) {
-        ContentResolver resolver = getContentResolver();
-        if (preference == mClockFont) {
-            String value = (String) newValue;
-            int valueIndex = mClockFont.findIndexOfValue(value);
-            mClockFont.setSummary(mClockFont.getEntries()[valueIndex]);
-        } else if (preference == mClockColor) {
-            String hexColor = String.format("#%08X", mClockColor.getColor());
-            mClockColor.setSummary(hexColor);
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-            prefs.edit().putInt(mClockColor.getKey(), mClockColor.getColor()).commit();
-        }
-        return true;
-    }
-
-    @Override
-    protected boolean isValidFragment(String fragmentName) {
-        return false;
     }
 }

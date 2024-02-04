@@ -20,21 +20,14 @@
 <!-- These resources are around just to allow their values to be customized
      for different hardware and product builds. -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <dimen name="next_alarm_text_size">15sp</dimen>
 
     <dimen name="alarm_side_padding">128dip</dimen>
 
     <dimen name="dialpad_font_size">42sp</dimen>
-    <dimen name="dialpad_digit_padding">26dip</dimen>
-    <dimen name="timer_setup_font_size">78sp</dimen>
-    <dimen name="timer_setup_button_size">36sp</dimen>
     <dimen name="timer_setup_delete_start_margin">26sp</dimen>
 
     <!-- Size of margin for circles. -->
     <dimen name="circle_margin">48dp</dimen>
     <dimen name="timer_circle_margin">48dp</dimen>
 
-    <dimen name="stopwatch_list_margin_start">128dip</dimen>
-
-    <dimen name="sw_padding_end">48dp</dimen>
 </resources>

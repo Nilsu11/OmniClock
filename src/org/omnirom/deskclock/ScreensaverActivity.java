@@ -16,7 +16,6 @@
 
 package org.omnirom.deskclock;
 
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -25,7 +24,8 @@ import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.os.BatteryManager;
 import android.os.Handler;
-import android.preference.PreferenceManager;
+import androidx.preference.PreferenceManager;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -34,7 +34,7 @@ import android.widget.TextClock;
 
 import org.omnirom.deskclock.Utils.ScreensaverMoveSaverRunnable;
 
-public class ScreensaverActivity extends Activity {
+public class ScreensaverActivity extends AppCompatActivity {
     static final boolean DEBUG = false;
     static final String TAG = "DeskClock/ScreensaverActivity";
 
@@ -113,14 +113,14 @@ public class ScreensaverActivity extends Activity {
         filter.addAction(Intent.ACTION_USER_PRESENT);
         filter.addAction(Intent.ACTION_TIME_CHANGED);
         filter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
-        registerReceiver(mIntentReceiver, filter);
+        Utils.registerReceiver(this, mIntentReceiver, filter, RECEIVER_EXPORTED);
     }
 
     @Override
     public void onResume() {
         super.onResume();
         Intent chargingIntent =
-                registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+                Utils.registerReceiver(this, null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED), RECEIVER_EXPORTED);
         int plugged = chargingIntent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
         mPluggedIn = plugged == BatteryManager.BATTERY_PLUGGED_AC
                 || plugged == BatteryManager.BATTERY_PLUGGED_USB

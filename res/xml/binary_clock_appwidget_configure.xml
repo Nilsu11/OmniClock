@@ -38,8 +38,4 @@
         android:key="binary_clock_shadow"
         android:title="@string/clock_shadow_title" />
 
-    <Preference
-        android:persistent="false"
-        android:widgetLayout="@layout/preference_button"/>
-
 </PreferenceScreen>

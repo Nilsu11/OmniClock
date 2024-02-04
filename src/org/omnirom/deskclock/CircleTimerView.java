@@ -107,17 +107,17 @@ public class CircleTimerView extends View {
 
 
 
-    private void init(Context c) {
+    private void init(Context context) {
 
-        final Resources resources = c.getResources();
+        final Resources resources = context.getResources();
         mStrokeSize = resources.getDimension(R.dimen.circletimer_circle_size);
         mMarkerStrokeSize = resources.getDimension(R.dimen.circletimer_marker_size);
         mPaint.setAntiAlias(true);
         mPaint.setStyle(Paint.Style.STROKE);
 
-        mWhiteColor = resources.getColor(R.color.accent);
-        mMarkerColor = resources.getColor(R.color.accent);
-        mAccentColor = resources.getColor(R.color.primary);
+        mWhiteColor = Utils.getColorAttr(context, R.attr.colorAccent);
+        mMarkerColor = Utils.getColorAttr(context, R.attr.colorAccent);
+        mAccentColor = Utils.getColorAttr(context, org.omnirom.deskclock.R.attr.colorPrimary);
         mScreenDensity = resources.getDisplayMetrics().density;
 
         mFill.setAntiAlias(true);

@@ -23,11 +23,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
-import android.support.v7.widget.CardView;
+import androidx.preference.PreferenceManager;
+import androidx.cardview.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -193,7 +192,7 @@ public class ClockFragment extends DeskClockFragment {
         filter.addAction(Intent.ACTION_TIME_CHANGED);
         filter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
         filter.addAction(Intent.ACTION_LOCALE_CHANGED);
-        activity.registerReceiver(mIntentReceiver, filter);
+        Utils.registerReceiver(activity, mIntentReceiver, filter, Context.RECEIVER_EXPORTED);
 
         // Resume can invoked after changing the cities list or a change in locale
         if (mAdapter != null) {

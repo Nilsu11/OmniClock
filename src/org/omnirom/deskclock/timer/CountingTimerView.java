@@ -261,19 +261,19 @@ public class CountingTimerView extends View {
         TypedValue outValue = new TypedValue();
         context.getTheme().resolveAttribute(android.R.attr.textColorPrimary, outValue, true);
 
-        mTextColor = r.getColor(org.omnirom.deskclock.R.color.primary);
+        mTextColor = Utils.getColorAttr(context, org.omnirom.deskclock.R.attr.colorPrimary);
         mBigFontSize = r.getDimension(org.omnirom.deskclock.R.dimen.big_font_size);
         mSmallFontSize = r.getDimension(org.omnirom.deskclock.R.dimen.small_font_size);
 
         Typeface androidClockMonoLight = Typeface.create("sans-serif-light", Typeface.BOLD);
 
         mPaintBigThin.setAntiAlias(true);
-        mPaintBigThin.setStyle(Paint.Style.STROKE);
+        mPaintBigThin.setStyle(Paint.Style.FILL_AND_STROKE);
         mPaintBigThin.setTextAlign(Paint.Align.CENTER);
         mPaintBigThin.setTypeface(androidClockMonoLight);
 
         mPaintMed.setAntiAlias(true);
-        mPaintMed.setStyle(Paint.Style.STROKE);
+        mPaintMed.setStyle(Paint.Style.FILL_AND_STROKE);
         mPaintMed.setTextAlign(Paint.Align.CENTER);
         mPaintMed.setTypeface(androidClockMonoLight);
 

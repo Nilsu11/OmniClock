@@ -35,6 +35,7 @@ import android.widget.RemoteViews;
 
 import org.omnirom.deskclock.DeskClock;
 import org.omnirom.deskclock.R;
+import org.omnirom.deskclock.Utils;
 
 import java.util.Date;
 
@@ -64,7 +65,7 @@ public class CustomAnalogAppWidgetProvider extends AppWidgetProvider {
             super.onCreate();
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction(Intent.ACTION_TIME_TICK);
-            registerReceiver(mClockChangedReceiver, intentFilter);
+            Utils.registerReceiver(this, mClockChangedReceiver, intentFilter, RECEIVER_EXPORTED);
             if (DigitalAppWidgetService.LOGGING) {
                 Log.i(TAG, "AnalogClockUpdateService:onCreate");
             }
@@ -197,7 +198,7 @@ public class CustomAnalogAppWidgetProvider extends AppWidgetProvider {
                 newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY, -1)
                         != AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD) {
             widget.setOnClickPendingIntent(R.id.the_clock_image,
-                    PendingIntent.getActivity(context, 0, new Intent(context, DeskClock.class), 0));
+                    PendingIntent.getActivity(context, 0, new Intent(context, DeskClock.class),  PendingIntent.FLAG_IMMUTABLE));
         }
 
         Bitmap analogClock = WidgetUtils.createAnalogClockBitmap(context, showAlarm, showDate, showNumbers, showTicks,

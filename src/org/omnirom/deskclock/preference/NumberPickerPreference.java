@@ -7,19 +7,22 @@ package org.omnirom.deskclock.preference;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.preference.DialogPreference;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.NumberPicker;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.preference.Preference;
+
 import org.omnirom.deskclock.R;
 /**
-* A {@link DialogPreference} that provides a user with the means to select an integer from a {@link NumberPicker}, and persist it.
+* A {@link Preference} that provides a user with the means to select an integer from a {@link NumberPicker}, and persist it.
 *
 * @author lukehorvat
 *
 */
-public class NumberPickerPreference extends DialogPreference
+public class NumberPickerPreference extends Preference
 {
     protected static final int DEFAULT_MIN_VALUE = 0;
     protected static final int DEFAULT_MAX_VALUE = 100;
@@ -30,21 +33,19 @@ public class NumberPickerPreference extends DialogPreference
     protected int mValue;
     protected NumberPicker mNumberPicker;
 
+    public Context mContext;
+    public AlertDialog mDialog;
+
     public NumberPickerPreference(Context context) {
         this(context, null);
     }
 
     public NumberPickerPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
+        mContext = context;
 
         setMinValue(DEFAULT_MIN_VALUE);
         setMaxValue(DEFAULT_MAX_VALUE);
-
-        // set layout
-        setDialogLayoutResource(R.layout.preference_number_picker);
-        setPositiveButtonText(android.R.string.ok);
-        setNegativeButtonText(android.R.string.cancel);
-        setDialogIcon(null);
     }
 
     @Override
@@ -58,13 +59,29 @@ public class NumberPickerPreference extends DialogPreference
     }
 
     @Override
-    protected void onBindDialogView(View view) {
-        super.onBindDialogView(view);
+    public void onClick() {
+        if (mDialog == null) {
+            mDialog = new AlertDialog.Builder(mContext)
+                    .setPositiveButton(android.R.string.ok, (dialogInterface, i) -> onDialogClosed(true))
+                    .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> onDialogClosed(false))
+                    .setView(createDialogView(null))
+                    .create();
+        } if (!mDialog.isShowing()) {
+            mDialog.show();
+        }
+    }
+
+    public View createDialogView(View view) {
+        if (view == null) {
+            LayoutInflater inflater = LayoutInflater.from(mContext);
+            view = inflater.inflate(R.layout.preference_number_picker, null);
+        }
 
         mNumberPicker = (NumberPicker) view.findViewById(R.id.number_picker);
         mNumberPicker.setMinValue(mMinValue);
         mNumberPicker.setMaxValue(mMaxValue);
         mNumberPicker.setValue(mValue);
+        return view;
     }
 
     public int getMinValue() {
@@ -103,9 +120,7 @@ public class NumberPickerPreference extends DialogPreference
         return mNumberPicker.getValue();
     }
 
-    @Override
     protected void onDialogClosed(boolean positiveResult) {
-        super.onDialogClosed(positiveResult);
 
         // when the user selects "OK", persist the new value
         if (positiveResult) {

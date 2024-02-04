@@ -21,11 +21,7 @@
      for different hardware and product builds. -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <dimen name="label_text_size">18sp</dimen>
-    <dimen name="next_alarm_text_size">15sp</dimen>
-    <dimen name="timer_list_padding_bottom">112dip</dimen>
-    <dimen name="timer_cancel_end_margin">128dip</dimen>
     <dimen name="screensaver_margin">20dip</dimen>
-    <dimen name="alarm_label_padding">64dip</dimen>
     <dimen name="bottom_text_size">18sp</dimen>
     <dimen name="bottom_text_spacing_digital">-14dp</dimen>
     <dimen name="bottom_text_spacing_analog">14dp</dimen>
@@ -37,27 +33,13 @@
     <dimen name="medium_font_size">96sp</dimen>
     <dimen name="small_font_size">60sp</dimen>
     <dimen name="label_font_size">18sp</dimen>
-    <dimen name="alarm_label_size">18sp</dimen>
-    <dimen name="body_font_size">20sp</dimen>
     <dimen name="alarm_time_font_size">64sp</dimen>
-    <dimen name="alarm_info_font_size">48sp</dimen>
     <dimen name="widget_label_font_size">16sp</dimen>
 
     <dimen name="body_font_padding">8dp</dimen>
     <dimen name="medium_font_padding">24dp</dimen>
 
-    <dimen name="small_space">32dp</dimen>
-    <dimen name="medium_space_top">46dp</dimen>
-    <dimen name="medium_space_bottom">18dp</dimen>
-    <dimen name="main_clock_padding">40dp</dimen>
-
-    <dimen name="label_margin_big">8dp</dimen>
-    <dimen name="label_margin_small">4dp</dimen>
-
     <dimen name="dialpad_font_size">56sp</dimen>
-    <dimen name="dialpad_digit_padding">34dip</dimen>
-    <dimen name="timer_setup_font_size">86sp</dimen>
-    <dimen name="timer_setup_button_size">36sp</dimen>
     <dimen name="timer_setup_delete_start_margin">29sp</dimen>
 
     <!-- Size of margin for circles. -->
@@ -68,7 +50,6 @@
     <dimen name="circle_size">300dp</dimen>
 
      <!-- Width of the clock, for use with alarm buttons. -->
-    <dimen name="alarm_alert_display_width">550dip</dimen>
 
     <!-- Size of analog clock in world clock. -->
     <dimen name="world_clock_analog_size">100dip</dimen>

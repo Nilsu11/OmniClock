@@ -105,17 +105,16 @@ public class AnalogClock extends View {
                        int defStyle) {
         super(context, attrs, defStyle);
         mContext = context;
-        Resources r = mContext.getResources();
 
-        mBgColor = r.getColor(R.color.analog_clock_bg_color);
-        mBorderColor = r.getColor(R.color.primary);
-        mTextColor = r.getColor(R.color.analog_clock_text_color);
-        mHourColor = r.getColor(R.color.analog_clock_hour_hand_color);
-        mMinuteColor = r.getColor(R.color.analog_clock_minute_hand_color);
-        mAccentColor = r.getColor(R.color.accent);
-        mSecondsColor = r.getColor(R.color.analog_clock_seconds_hand_color);
-        mAmbientColor = r.getColor(R.color.analog_clock_ambient_color);
-        mAmbientBgColor = r.getColor(R.color.analog_clock_ambient_bg_color);
+        mBgColor = context.getColor(R.color.analog_clock_bg_color);
+        mBorderColor = Utils.getColorAttr(context, org.omnirom.deskclock.R.attr.colorPrimary);
+        mTextColor = Utils.isLightTheme(context) ? context.getColor(R.color.black) : context.getColor(R.color.white);
+        mHourColor = context.getColor(R.color.analog_clock_hour_hand_color);
+        mMinuteColor = Utils.getColorAttr(context, R.attr.colorPrimaryDark);
+        mAccentColor = Utils.getColorAttr(context, R.attr.colorAccent);
+        mSecondsColor = context.getColor(R.color.analog_clock_seconds_hand_color);
+        mAmbientColor = context.getColor(R.color.analog_clock_ambient_color);
+        mAmbientBgColor = context.getColor(R.color.analog_clock_ambient_bg_color);
 
         mCirclePaint = new Paint();
         mCirclePaint.setAntiAlias(true);

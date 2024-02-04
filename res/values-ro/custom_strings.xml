@@ -34,7 +34,6 @@
     <string name="entry_three_count">de 3 ori</string>
     <string name="entry_five_count">de 5 ori</string>
     <string name="entry_ten_count">de 10 ori</string>
-    <string name="pick_media">Selectaţi audio</string>
     <string name="ringtone_disabled">Dezactivat</string>
     <!-- User-defined cities -->
 </resources>

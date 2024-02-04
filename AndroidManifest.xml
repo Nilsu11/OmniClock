@@ -7,14 +7,16 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" android:minSdkVersion="33" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="org.omnirom.deskclock.worldclock.permissions.WRITE_DATABASE" />
 
     <uses-feature android:name="android.hardware.location.gps" />
@@ -51,6 +53,7 @@
             android:writePermission="org.omnirom.deskclock.worldclock.permissions.WRITE_DATABASE" />
 
         <activity
+            android:exported="true"
             android:name="org.omnirom.deskclock.DeskClock"
             android:label="@string/app_label_new"
             android:launchMode="singleTask">
@@ -66,6 +69,7 @@
         </activity>
 
         <activity-alias
+            android:exported="true"
             android:name="DockClock"
             android:label="@string/app_label_new"
             android:launchMode="singleTask"
@@ -79,6 +83,7 @@
         </activity-alias>
 
         <activity
+            android:exported="false"
             android:name="org.omnirom.deskclock.SettingsActivity"
             android:excludeFromRecents="true"
             android:label="@string/settings"
@@ -89,6 +94,7 @@
         </activity>
 
         <activity
+            android:exported="false"
             android:name="org.omnirom.deskclock.worldclock.CitiesActivity"
             android:excludeFromRecents="true"
             android:label="@string/cities_activity_title"
@@ -121,9 +127,11 @@
 
         <service
             android:name="org.omnirom.deskclock.alarms.AlarmService"
-            android:exported="false"/>
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback"/>
 
         <activity
+            android:exported="true"
             android:name="org.omnirom.deskclock.HandleApiCalls"
             android:excludeFromRecents="true"
             android:permission="com.android.alarm.permission.SET_ALARM"
@@ -151,7 +159,9 @@
             android:exported="true"
             android:targetActivity="org.omnirom.deskclock.HandleApiCalls"/>
 
-        <receiver android:name="org.omnirom.deskclock.AlarmInitReceiver">
+        <receiver
+            android:exported="true"
+            android:name="org.omnirom.deskclock.AlarmInitReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.TIME_SET" />
@@ -161,6 +171,7 @@
         </receiver>
 
         <receiver
+            android:exported="true"
             android:name="org.omnirom.alarmclock.CustomAnalogAppWidgetProvider"
             android:label="@string/analog_gadget">
             <intent-filter>
@@ -177,6 +188,7 @@
         </receiver>
 
         <receiver
+            android:exported="true"
             android:name="org.omnirom.alarmclock.CustomAppWidgetProvider"
             android:label="@string/custom_gadget">
             <intent-filter>
@@ -197,7 +209,8 @@
         <receiver
             android:name="org.omnirom.alarmclock.BinaryClockAppWidgetProvider"
             android:icon="@mipmap/ic_launcher_alarmclock"
-            android:label="@string/binary_gadget">
+            android:label="@string/binary_gadget"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.intent.action.DATE_CHANGED" />
@@ -229,19 +242,24 @@
             android:exported="false"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
 
-        <activity android:name="org.omnirom.alarmclock.CustomAppWidgetConfigure" >
+        <activity
+            android:exported="false" android:name="org.omnirom.alarmclock.CustomAppWidgetConfigure" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
         </activity>
 
-        <activity android:name="org.omnirom.alarmclock.CustomAnalogAppWidgetConfigure" >
+        <activity
+            android:exported="false"
+            android:name="org.omnirom.alarmclock.CustomAnalogAppWidgetConfigure" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
         </activity>
 
-        <activity android:name="org.omnirom.alarmclock.BinaryClockAppWidgetConfigure" >
+        <activity
+            android:exported="false"
+            android:name="org.omnirom.alarmclock.BinaryClockAppWidgetConfigure" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
@@ -286,11 +304,12 @@
             android:excludeFromRecents="true"
             android:launchMode="singleInstance"
             android:showOnLockScreen="true"
+            android:exported="false"
             android:taskAffinity=""
             android:theme="@style/TimerAlertFullScreenTheme" />
 
         <service
-            android:name="org.omnirom.deskclock.TimerRingService"
+            android:name="org.omnirom.deskclock.timer.TimerRingService"
             android:description="@string/timer_ring_service_desc"
             android:exported="false">
             <intent-filter>
@@ -354,6 +373,7 @@
         </activity>
 
         <service
+            android:exported="true"
             android:name="org.omnirom.deskclock.AlarmTileService"
             android:icon="@drawable/ic_alarm_white"
             android:label="@string/tile_create_alarm"

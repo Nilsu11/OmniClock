@@ -36,7 +36,7 @@ import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+import androidx.preference.PreferenceManager;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
@@ -239,32 +239,32 @@ public class WidgetUtils {
 
     public static int getAnalogBgColor(Context context, int id) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return prefs.getInt(CustomAnalogAppWidgetConfigure.KEY_BG_COLOR + "_" + id, context.getResources().getColor(R.color.analog_clock_bg_color));
+        return prefs.getInt(CustomAnalogAppWidgetConfigure.KEY_BG_COLOR + "_" + id, context.getColor(R.color.analog_clock_bg_color));
     }
 
     public static int getAnalogBorderColor(Context context, int id) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return prefs.getInt(CustomAnalogAppWidgetConfigure.KEY_BORDER_COLOR + "_" + id, context.getResources().getColor(R.color.primary));
+        return prefs.getInt(CustomAnalogAppWidgetConfigure.KEY_BORDER_COLOR + "_" + id, Utils.getColorAttr(context, org.omnirom.deskclock.R.attr.colorPrimary));
     }
 
     public static int getAnalogHourColor(Context context, int id) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return prefs.getInt(CustomAnalogAppWidgetConfigure.KEY_HOUR_COLOR + "_" + id, context.getResources().getColor(R.color.analog_clock_hour_hand_color));
+        return prefs.getInt(CustomAnalogAppWidgetConfigure.KEY_HOUR_COLOR + "_" + id, context.getColor(R.color.analog_clock_hour_hand_color));
     }
 
     public static int getAnalogMinuteColor(Context context, int id) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return prefs.getInt(CustomAnalogAppWidgetConfigure.KEY_MINUTE_COLOR + "_" + id, context.getResources().getColor(R.color.analog_clock_minute_hand_color));
+        return prefs.getInt(CustomAnalogAppWidgetConfigure.KEY_MINUTE_COLOR + "_" + id, Utils.getColorAttr(context, R.attr.colorPrimaryDark));
     }
 
     public static int getAnalogTextColor(Context context, int id) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return prefs.getInt(CustomAnalogAppWidgetConfigure.KEY_TEXT_COLOR + "_" + id, context.getResources().getColor(R.color.analog_clock_text_color));
+        return prefs.getInt(CustomAnalogAppWidgetConfigure.KEY_TEXT_COLOR + "_" + id, Utils.isLightTheme(context) ? context.getColor(R.color.black) : context.getColor(R.color.white));
     }
 
     public static int getAnalogAccentColor(Context context, int id) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return prefs.getInt(CustomAnalogAppWidgetConfigure.KEY_ACCENT_COLOR + "_" + id, context.getResources().getColor(R.color.accent));
+        return prefs.getInt(CustomAnalogAppWidgetConfigure.KEY_ACCENT_COLOR + "_" + id, Utils.getColorAttr(context, R.attr.colorAccent));
     }
 
     public static Bitmap createAnalogClockBitmap(Context context, boolean showAlarm, boolean showDate, boolean showNumbers, boolean showTicks,

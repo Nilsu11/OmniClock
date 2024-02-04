@@ -24,16 +24,17 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.support.v4.app.NotificationCompat;
+import androidx.preference.PreferenceManager;
+import androidx.core.app.NotificationCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 
 import org.omnirom.deskclock.DeskClock;
+import org.omnirom.deskclock.LogUtils;
 import org.omnirom.deskclock.NotificationChannelManager.Channel;
 import org.omnirom.deskclock.NotificationChannelManager;
-import org.omnirom.deskclock.TimerRingService;
+import org.omnirom.deskclock.R;
 import org.omnirom.deskclock.Utils;
 
 import java.util.ArrayList;
@@ -52,7 +53,7 @@ public class TimerReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(final Context context, final Intent intent) {
         if (Timers.LOGGING) {
-            Log.v(TAG, "Received intent " + intent.toString());
+            LogUtils.i(TAG, "Received intent " + intent.toString());
         }
         String actionType = intent.getAction();
         // This action does not need the timers data
@@ -67,6 +68,13 @@ public class TimerReceiver extends BroadcastReceiver {
         }
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         TimerObj.getTimersFromSharedPrefs(prefs, mTimers);
+
+
+        // Update the next "Times up" alarm
+        // It's here because I want to be better safe than sorry
+        updateNextTimesup(context);
+        // Don't know if we need this here, but I don't want to hear endless timer ringtones(and for now it works)
+        stopRingtoneIfNoTimesup(context);
 
         // These actions do not provide a timer ID, but do use the timers data
         if (Timers.NOTIF_IN_USE_SHOW.equals(actionType)) {
@@ -244,19 +252,19 @@ public class TimerReceiver extends BroadcastReceiver {
     // Tell AlarmManager to send a "Time's up" message to this receiver when this timer expires.
     // If no timer exists, clear "time's up" message.
     private void updateNextTimesup(Context context) {
+        LogUtils.i("Scheduled");
         TimerObj t = getNextRunningTimer(mTimers, false, Utils.getTimeNow());
         long nextTimesup = (t == null) ? -1 : t.getTimesupTime();
         int timerId = (t == null) ? -1 : t.mTimerId;
 
-        Intent intent = new Intent();
+        Intent intent = new Intent(context, TimerReceiver.class);
         intent.setAction(Timers.TIMES_UP);
-        intent.setClass(context, TimerReceiver.class);
         if (!mTimers.isEmpty()) {
             intent.putExtra(Timers.TIMER_INTENT_EXTRA, timerId);
         }
         AlarmManager mngr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         PendingIntent p = PendingIntent.getBroadcast(context,
-                0, intent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_UPDATE_CURRENT);
+                0, intent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         if (t != null) {
             if (Utils.isMOrLater()) {
                 // Ensure the alarm fires even if the device is dozing.
@@ -370,7 +378,7 @@ public class TimerReceiver extends BroadcastReceiver {
         activityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         activityIntent.putExtra(DeskClock.SELECT_TAB_INTENT_EXTRA, DeskClock.TIMER_TAB_INDEX);
         PendingIntent pendingActivityIntent = PendingIntent.getActivity(context, 0, activityIntent,
-                PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         if (Utils.isNougatOrLater()) {
             showCollapsedNotificationNew(context, timer, title, text, Notification.PRIORITY_HIGH,
                     pendingActivityIntent, IN_USE_NOTIFICATION_ID, false);
@@ -385,7 +393,7 @@ public class TimerReceiver extends BroadcastReceiver {
         Intent nextBroadcast = new Intent();
         nextBroadcast.setAction(Timers.NOTIF_IN_USE_SHOW);
         PendingIntent pendingNextBroadcast =
-                PendingIntent.getBroadcast(context, 0, nextBroadcast, 0);
+                PendingIntent.getBroadcast(context, 0, nextBroadcast,  PendingIntent.FLAG_IMMUTABLE);
         AlarmManager alarmManager =
                 (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (Utils.isMOrLater()) {
@@ -408,10 +416,10 @@ public class TimerReceiver extends BroadcastReceiver {
                 .setPriority(priority)
                 .setShowWhen(false)
                 .setSmallIcon(org.omnirom.deskclock.R.drawable.ic_notify_timer)
-                .setCategory(Notification.CATEGORY_ALARM)
-                .setVisibility(Notification.VISIBILITY_PUBLIC)
+                .setCategory(NotificationCompat.CATEGORY_ALARM)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setLocalOnly(true)
-                .setColor(context.getResources().getColor(org.omnirom.deskclock.R.color.primary));
+                .setColor(Utils.getColorAttr(context, org.omnirom.deskclock.R.attr.colorPrimary));
 
         if (showTicker) {
             builder.setTicker(text);
@@ -446,13 +454,13 @@ public class TimerReceiver extends BroadcastReceiver {
             PendingIntent deleteNotificationIntent = PendingIntent.getBroadcast(context, timer.mTimerId,
                     new Intent(Timers.NOTIF_DELETE_TIMER)
                             .putExtra(Timers.TIMER_INTENT_EXTRA, timer.mTimerId),
-                    PendingIntent.FLAG_UPDATE_CURRENT);
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
             // reset timer action
             PendingIntent resetTimerIntent = PendingIntent.getBroadcast(context, timer.mTimerId,
                     new Intent(Timers.NOTIF_RESET_TIMER)
                             .putExtra(Timers.TIMER_INTENT_EXTRA, timer.mTimerId),
-                    PendingIntent.FLAG_UPDATE_CURRENT);
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
             remoteViewsExpanded.setTextViewText(
                     org.omnirom.deskclock.R.id.left_button, context.getResources().getString(org.omnirom.deskclock.R.string.timer_reset).toUpperCase());
@@ -466,7 +474,7 @@ public class TimerReceiver extends BroadcastReceiver {
                 PendingIntent toggleTimerIntent = PendingIntent.getBroadcast(context, timer.mTimerId,
                         new Intent(Timers.NOTIF_TOGGLE_STATE)
                                 .putExtra(Timers.TIMER_INTENT_EXTRA, timer.mTimerId),
-                        PendingIntent.FLAG_UPDATE_CURRENT);
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
                 remoteViewsExpanded.setTextViewText(
                         org.omnirom.deskclock.R.id.right_button, context.getResources().getString(timer.mState == TimerObj.STATE_RUNNING ?
                                 org.omnirom.deskclock.R.string.sw_pause_button :
@@ -500,7 +508,7 @@ public class TimerReceiver extends BroadcastReceiver {
             PendingIntent resetAllTimerIntent = PendingIntent.getBroadcast(context, RESET_ALL_TIMERS_BROADCAST_ID,
                     new Intent(Timers.NOTIF_RESET_ALL_TIMER)
                             .putExtra(Timers.TIMER_INTENT_EXTRA, RESET_ALL_TIMERS_BROADCAST_ID),
-                    PendingIntent.FLAG_UPDATE_CURRENT);
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
             builder.addAction(org.omnirom.deskclock.R.drawable.ic_notify_reset_black,
                     context.getResources().getString(org.omnirom.deskclock.R.string.timer_reset),
                     resetAllTimerIntent);
@@ -531,7 +539,7 @@ public class TimerReceiver extends BroadcastReceiver {
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
                     .setLocalOnly(true)
-                    .setColor(context.getResources().getColor(org.omnirom.deskclock.R.color.primary));
+                    .setColor(Utils.getColorAttr(context, org.omnirom.deskclock.R.attr.colorPrimary));
 
             if (showTicker) {
                 builder.setTicker(text);
@@ -562,14 +570,16 @@ public class TimerReceiver extends BroadcastReceiver {
                 // delete notification button will delete timer
                 PendingIntent deleteNotificationIntent = PendingIntent.getBroadcast(context, timer.mTimerId,
                         new Intent(Timers.NOTIF_DELETE_TIMER)
+                                .setClass(context, TimerReceiver.class)
                                 .putExtra(Timers.TIMER_INTENT_EXTRA, timer.mTimerId),
-                        PendingIntent.FLAG_UPDATE_CURRENT);
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
                 // reset timer action
                 PendingIntent resetTimerIntent = PendingIntent.getBroadcast(context, timer.mTimerId,
                         new Intent(Timers.NOTIF_RESET_TIMER)
+                                .setClass(context, TimerReceiver.class)
                                 .putExtra(Timers.TIMER_INTENT_EXTRA, timer.mTimerId),
-                        PendingIntent.FLAG_UPDATE_CURRENT);
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
                 builder.addAction(org.omnirom.deskclock.R.drawable.ic_notify_reset_black,
                         context.getResources().getString(org.omnirom.deskclock.R.string.timer_reset),
@@ -578,8 +588,9 @@ public class TimerReceiver extends BroadcastReceiver {
                 if (timer.mState == TimerObj.STATE_RUNNING || timer.mState == TimerObj.STATE_STOPPED) {
                     PendingIntent toggleTimerIntent = PendingIntent.getBroadcast(context, timer.mTimerId,
                             new Intent(Timers.NOTIF_TOGGLE_STATE)
+                                    .setClass(context, TimerReceiver.class)
                                     .putExtra(Timers.TIMER_INTENT_EXTRA, timer.mTimerId),
-                            PendingIntent.FLAG_UPDATE_CURRENT);
+                            PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
                     builder.addAction(timer.mState == TimerObj.STATE_RUNNING ?
                                     org.omnirom.deskclock.R.drawable.ic_notify_pause_black :
@@ -610,8 +621,9 @@ public class TimerReceiver extends BroadcastReceiver {
                 // show single button to reset all timers
                 PendingIntent resetAllTimerIntent = PendingIntent.getBroadcast(context, RESET_ALL_TIMERS_BROADCAST_ID,
                         new Intent(Timers.NOTIF_RESET_ALL_TIMER)
+                                .setClass(context, TimerReceiver.class)
                                 .putExtra(Timers.TIMER_INTENT_EXTRA, RESET_ALL_TIMERS_BROADCAST_ID),
-                        PendingIntent.FLAG_UPDATE_CURRENT);
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
                 builder.addAction(org.omnirom.deskclock.R.drawable.ic_notify_reset_black,
                         context.getResources().getString(org.omnirom.deskclock.R.string.timer_reset),
                         resetAllTimerIntent);
@@ -696,11 +708,13 @@ public class TimerReceiver extends BroadcastReceiver {
     }
 
     private void showTimesUpNotification(final Context context, TimerObj timerObj) {
+
+        LogUtils.e("I exist");
         // Content Intent. When clicked will show the timer full screen
         PendingIntent contentIntent = PendingIntent.getActivity(context, timerObj.mTimerId,
                 new Intent(context, TimerAlertFullScreen.class).putExtra(
                         Timers.TIMER_INTENT_EXTRA, timerObj.mTimerId),
-                PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         // Setup fullscreen intent - either heads up or fullscreen
         PendingIntent fullScreenIntent = PendingIntent.getActivity(context, timerObj.mTimerId,
@@ -708,19 +722,21 @@ public class TimerReceiver extends BroadcastReceiver {
                         .putExtra(Timers.TIMER_INTENT_EXTRA, timerObj.mTimerId)
                         .setAction("fullscreen_activity")
                         .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_USER_ACTION),
-                PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         // Add one minute action button
         PendingIntent addOneMinuteAction = PendingIntent.getBroadcast(context, timerObj.mTimerId,
                 new Intent(Timers.NOTIF_TIMES_UP_PLUS_ONE)
+                        .setClass(context, TimerReceiver.class)
                         .putExtra(Timers.TIMER_INTENT_EXTRA, timerObj.mTimerId),
-                PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         // Add stop/done action button
         PendingIntent stopIntent = PendingIntent.getBroadcast(context, timerObj.mTimerId,
                 new Intent(Timers.NOTIF_TIMES_UP_STOP)
+                        .setClass(context, TimerReceiver.class)
                         .putExtra(Timers.TIMER_INTENT_EXTRA, timerObj.mTimerId),
-                PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         // Notification creation
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context,
@@ -741,7 +757,7 @@ public class TimerReceiver extends BroadcastReceiver {
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setColor(context.getResources().getColor(org.omnirom.deskclock.R.color.primary));
+                .setColor(Utils.getColorAttr(context, org.omnirom.deskclock.R.attr.colorPrimary));
 
         if (!Utils.showWearNotification(context)) {
             builder.setLocalOnly(true);

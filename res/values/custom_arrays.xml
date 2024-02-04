@@ -96,30 +96,16 @@
         <item>-60</item>
     </string-array>
     <string-array name="color_theme_entries" translatable="false">
+        <item>@string/color_theme_system</item>
         <item>@string/color_theme_light</item>
         <item>@string/color_theme_dark</item>
         <item>@string/color_theme_black</item>
     </string-array>
     <string-array name="color_theme_values" translatable="false">
+        <item>-1</item>
         <item>0</item>
         <item>1</item>
         <item>2</item>
-    </string-array>
-    <string-array name="auto_silence_entries_new" translatable="false">
-        <item>@string/entry_one_minute</item>
-        <item>@string/entry_five_minute</item>
-        <item>@string/entry_ten_minute</item>
-        <item>@string/entry_fifteen_minute</item>
-        <item>@string/entry_thirty_minute</item>
-        <item>@string/auto_silence_never</item>
-    </string-array>
-    <string-array name="auto_silence_values_new" translatable="false">
-        <item>1</item>
-        <item>5</item>
-        <item>10</item>
-        <item>15</item>
-        <item>30</item>
-        <item>-1</item> <!-- Off -->
     </string-array>
     <string-array name="default_page_entries" translatable="false">
         <item>@string/menu_alarm</item>

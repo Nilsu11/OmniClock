@@ -24,5 +24,4 @@
     <!-- Setting title for the wave action setting. -->
     <!-- Setting labels on Set alarm screen: Increasing volume on or off -->
     <!-- User-defined cities -->
-    <string name="cities_add_city_timezone">Vremenska zona:</string>
 </resources>

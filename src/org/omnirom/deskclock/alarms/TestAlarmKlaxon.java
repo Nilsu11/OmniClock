@@ -18,11 +18,6 @@
 
 package org.omnirom.deskclock.alarms;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Collections;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -35,13 +30,19 @@ import android.media.MediaPlayer.OnErrorListener;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.preference.PreferenceManager;
+
+import androidx.preference.PreferenceManager;
 
 import org.omnirom.deskclock.LogUtils;
 import org.omnirom.deskclock.SettingsActivity;
+import org.omnirom.deskclock.Utils;
 import org.omnirom.deskclock.provider.Alarm;
 import org.omnirom.deskclock.provider.AlarmInstance;
-import org.omnirom.deskclock.Utils;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * for testing alarm tones
@@ -201,17 +202,17 @@ public class TestAlarmKlaxon {
 
         if (alarmNoise != null) {
             sTestStarted = true;
-            playTestAlarm(context, instance, alarmNoise);
+            playTestAlarm(context, alarmNoise);
 
             if (sStreamMediaMode) {
                 IntentFilter intentFilter = new IntentFilter();
                 intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-                context.registerReceiver(sNetworkListener, intentFilter);
+                Utils.registerReceiver(context, sNetworkListener, intentFilter, Context.RECEIVER_EXPORTED);
             }
         }
     }
 
-    public static void stopTest(Alarm instance) {
+    public static void stopTest() {
         if (!sTestStarted) {
             return;
         }
@@ -235,7 +236,7 @@ public class TestAlarmKlaxon {
         sTestStarted = false;
     }
 
-    private static void playTestAlarm(final Context context, final Alarm instance, final Uri alarmNoise) {
+    private static void playTestAlarm(final Context context, final Uri alarmNoise) {
         if (sMediaPlayer != null) {
             sMediaPlayer.reset();
         }
@@ -252,7 +253,7 @@ public class TestAlarmKlaxon {
             sMediaPlayer.setOnCompletionListener(new OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
-                    nextSong(context, instance);
+                    nextSong(context);
                 }
             });
         }
@@ -385,7 +386,7 @@ public class TestAlarmKlaxon {
         }
     }
 
-    private static void nextSong(Context context, Alarm instance) {
+    private static void nextSong(Context context) {
         if (sError) {
             return;
         }
@@ -407,7 +408,7 @@ public class TestAlarmKlaxon {
         if (sLocalMediaMode || sRandomMusicMode) {
             sErrorHandler.onTrackChanged(song);
         }
-        playTestAlarm(context, instance, song);
+        playTestAlarm(context, song);
     }
 
     private static void collectM3UFiles(Uri m3UFileUri) {

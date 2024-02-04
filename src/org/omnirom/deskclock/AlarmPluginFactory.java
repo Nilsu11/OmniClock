@@ -21,7 +21,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
+import androidx.preference.PreferenceManager;
 
 import org.omnirom.deskclock.alarms.AlarmConstants;
 import org.omnirom.deskclock.alarms.AlarmService;

@@ -18,11 +18,14 @@ package org.omnirom.deskclock.timer;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import org.omnirom.deskclock.CircleTimerView;
+import org.omnirom.deskclock.R;
 import org.omnirom.deskclock.Utils;
 
 
@@ -30,9 +33,13 @@ public class TimerListItem extends LinearLayout {
 
     CountingTimerView mTimerText;
     CircleTimerView mCircleView;
-    ImageView mResetAddButton;
+    ImageView mResetButton;
+    ImageButton mFab;
+    ImageButton mAdd;
 
     long mTimerLength;
+
+
 
     public TimerListItem(Context context) {
         this(context, null);
@@ -53,13 +60,16 @@ public class TimerListItem extends LinearLayout {
         super.onFinishInflate();
         mTimerText = (CountingTimerView) findViewById(org.omnirom.deskclock.R.id.timer_time_text);
         mCircleView = (CircleTimerView) findViewById(org.omnirom.deskclock.R.id.timer_time);
-        mCircleView.setBackgroundResource(Utils.getCircleViewBackgroundResourceId(getContext()));        mResetAddButton = (ImageView) findViewById(org.omnirom.deskclock.R.id.reset_add);
+        mFab = findViewById(org.omnirom.deskclock.R.id.fab);
+        mCircleView.setBackgroundResource(Utils.getCircleViewBackgroundResourceId(getContext()));
         mCircleView.setTimerMode(true);
+        mResetButton = (ImageView) findViewById(org.omnirom.deskclock.R.id.reset_add);
+        findViewById(R.id.alarm_item_card).setBackgroundColor(Utils.getViewBackgroundColor(getContext()));
     }
 
     public void set(long timerLength, long timeLeft, boolean drawRed) {
         if (mCircleView == null) {
-            mCircleView = (CircleTimerView) findViewById(org.omnirom.deskclock.R.id.timer_time);
+            mCircleView = findViewById(R.id.timer_time);
             mCircleView.setTimerMode(true);
         }
         mTimerLength = timerLength;
@@ -69,16 +79,14 @@ public class TimerListItem extends LinearLayout {
     }
 
     public void start() {
-        mResetAddButton.setImageResource(Utils.isLightTheme(getContext()) ? org.omnirom.deskclock.R.drawable.ic_plusone_black : org.omnirom.deskclock.R.drawable.ic_plusone);
-        mResetAddButton.setContentDescription(getResources().getString(org.omnirom.deskclock.R.string.timer_plus_one));
+        mFab.setImageResource(R.drawable.ic_fab_pause);
         mCircleView.startIntervalAnimation();
         mTimerText.showTime(true);
         mCircleView.setVisibility(VISIBLE);
     }
 
     public void pause() {
-        mResetAddButton.setImageResource(Utils.isLightTheme(getContext()) ? org.omnirom.deskclock.R.drawable.ic_reset_black : org.omnirom.deskclock.R.drawable.ic_reset);
-        mResetAddButton.setContentDescription(getResources().getString(org.omnirom.deskclock.R.string.timer_reset));
+        mFab.setImageResource(R.drawable.ic_fab_play);
         mCircleView.pauseIntervalAnimation();
         mTimerText.showTime(true);
         mCircleView.setVisibility(VISIBLE);
@@ -114,17 +122,35 @@ public class TimerListItem extends LinearLayout {
         mCircleView.setVisibility(blink ? INVISIBLE : VISIBLE);
     }
 
-    public void setResetAddButton(boolean isRunning, OnClickListener listener) {
-        if (mResetAddButton == null) {
-            mResetAddButton = (ImageView) findViewById(org.omnirom.deskclock.R.id.reset_add);
+    public void setResetButton(OnClickListener listener) {
+        if (mResetButton == null) {
+            mResetButton = (ImageView) findViewById(org.omnirom.deskclock.R.id.reset_add);
         }
 
-        mResetAddButton.setImageResource(isRunning ?
-                (Utils.isLightTheme(getContext()) ? org.omnirom.deskclock.R.drawable.ic_plusone_black : org.omnirom.deskclock.R.drawable.ic_plusone) :
-                ((Utils.isLightTheme(getContext()) ? org.omnirom.deskclock.R.drawable.ic_reset_black : org.omnirom.deskclock.R.drawable.ic_reset)));
-        mResetAddButton.setContentDescription(getResources().getString(
-                isRunning ? org.omnirom.deskclock.R.string.timer_plus_one : org.omnirom.deskclock.R.string.timer_reset));
-        mResetAddButton.setOnClickListener(listener);
+        mResetButton.setImageResource(((Utils.isLightTheme(getContext()) ?
+                org.omnirom.deskclock.R.drawable.ic_reset_black : org.omnirom.deskclock.R.drawable.ic_reset)));
+        mResetButton.setContentDescription(getResources().getString(org.omnirom.deskclock.R.string.timer_reset));
+        mResetButton.setOnClickListener(listener);
+    }
+    public void setAddButton(OnClickListener listener) {
+        if (mAdd == null) {
+            mAdd = findViewById(R.id.add);
+        }
+
+        mAdd.setImageResource(((Utils.isLightTheme(getContext()) ?
+                R.drawable.ic_plusone_black : R.drawable.ic_plusone)));
+        mAdd.setContentDescription(getResources().getString(org.omnirom.deskclock.R.string.timer_reset));
+        mAdd.setOnClickListener(listener);
+    }
+
+    public void setFabButton(boolean isRunning, OnClickListener listener) {
+        if (mFab == null) {
+            mFab = findViewById(R.id.add);
+        }
+
+        mFab.setImageResource(isRunning ? R.drawable.ic_fab_pause : R.drawable.ic_fab_play);
+        mFab.setContentDescription(getResources().getString(org.omnirom.deskclock.R.string.timer_reset));
+        mFab.setOnClickListener(listener);
     }
 
     public void setTime(long time, boolean forceUpdate) {

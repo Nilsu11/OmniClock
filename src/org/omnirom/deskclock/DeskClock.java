@@ -16,49 +16,48 @@
 
 package org.omnirom.deskclock;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Fragment;
-import android.app.FragmentManager;
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Outline;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
-import android.support.v13.app.ActivityCompat;
-import android.support.v13.app.FragmentPagerAdapter;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
-import android.text.Html;
-import android.text.method.LinkMovementMethod;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
-import android.view.ViewOutlineProvider;
+import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.preference.PreferenceManager;
+import androidx.viewpager.widget.ViewPager;
+
+import com.google.android.material.tabs.TabLayout;
 
 import org.omnirom.deskclock.alarms.AlarmStateManager;
 import org.omnirom.deskclock.provider.Alarm;
 import org.omnirom.deskclock.stopwatch.StopwatchFragment;
 import org.omnirom.deskclock.stopwatch.StopwatchService;
 import org.omnirom.deskclock.stopwatch.Stopwatches;
-import org.omnirom.deskclock.timer.TimerFragment;
+import org.omnirom.deskclock.timer.TimerFullScreenFragment;
 import org.omnirom.deskclock.timer.TimerObj;
+import org.omnirom.deskclock.timer.TimerReceiver;
 import org.omnirom.deskclock.timer.Timers;
-import org.omnirom.deskclock.widget.ActionableToastBar;
 import org.omnirom.deskclock.widget.SlidingTabLayout;
 
 import java.util.ArrayList;
@@ -68,7 +67,7 @@ import java.util.TimeZone;
 /**
  * DeskClock clock view for desk docks.
  */
-public class DeskClock extends Activity implements LabelDialogFragment.TimerLabelDialogHandler,
+public class DeskClock extends AppCompatActivity implements LabelDialogFragment.TimerLabelDialogHandler,
         LabelDialogFragment.AlarmLabelDialogHandler {
     private static final boolean DEBUG = false;
     private static final String LOG_TAG = "DeskClock";
@@ -83,10 +82,9 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
     private ImageView mLeftButton;
     private ImageView mRightButton;
     private int mSelectedTab = -1;
+    private ConstraintLayout mFabButtons;
+
     private SlidingTabLayout mSlidingTabs;
-    private ActionableToastBar mUndoBar;
-    private View mUndoFrame;
-    private LinearLayout mFabButtons;
 
     public static final int ALARM_TAB_INDEX = 0;
     public static final int CLOCK_TAB_INDEX = 1;
@@ -95,6 +93,8 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
 
     public static final String SELECT_TAB_INTENT_EXTRA = "deskclock.select.tab";
     private static final int PERMISSIONS_REQUEST_EXTERNAL_STORAGE = 0;
+
+    private TimerReceiver mTimerReceiver;
 
     private final BroadcastReceiver mColorThemeReceiver = new BroadcastReceiver() {
         @Override
@@ -137,30 +137,17 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
         }
     }
 
-    private static final ViewOutlineProvider OVAL_OUTLINE_PROVIDER = new ViewOutlineProvider() {
-        @Override
-        public void getOutline(View view, Outline outline) {
-            outline.setOval(0, 0, view.getWidth(), view.getHeight());
-        }
-    };
-
     private void initViews() {
         setContentView(R.layout.desk_clock);
-        mFabButtons = (LinearLayout) findViewById(R.id.fab_buttons);
+        mFabButtons = (ConstraintLayout) findViewById(R.id.fab_buttons);
         mFab = (ImageView) findViewById(R.id.fab);
-        mFab.setOutlineProvider(OVAL_OUTLINE_PROVIDER);
 
         mLeftButton = (ImageView) findViewById(R.id.left_button);
-        mLeftButton.setOutlineProvider(OVAL_OUTLINE_PROVIDER);
 
         mRightButton = (ImageView) findViewById(R.id.right_button);
-        mRightButton.setOutlineProvider(OVAL_OUTLINE_PROVIDER);
-
-        mUndoBar = (ActionableToastBar) findViewById(R.id.undo_bar);
-        mUndoFrame = findViewById(R.id.undo_frame);
 
         if (mTabsAdapter == null) {
-            getActionBar().setElevation(0);
+            getSupportActionBar().setElevation(0);
             mViewPager = (ViewPager) findViewById(R.id.desk_clock_pager);
             mViewPager.setOffscreenPageLimit(4);
             mTabsAdapter = new TabsAdapter(this, mViewPager);
@@ -170,6 +157,7 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
             mSlidingTabs = (SlidingTabLayout) findViewById(R.id.desk_clock_tabs);
             mSlidingTabs.setDeskClock(this);
             mSlidingTabs.setCustomTabView(R.layout.tab_strip_item, R.id.tab_strip_title, R.id.tab_strip_image);
+            mSlidingTabs.setBackgroundColor(Utils.getViewBackgroundColor(this));
 
             // Setting the ViewPager For the SlidingTabsLayout
             mSlidingTabs.setViewPager(mViewPager);
@@ -178,7 +166,7 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
 
         mFab.setOnClickListener(new OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View view) {LogUtils.i("hi");
                 getSelectedFragment().onFabClick(view);
             }
         });
@@ -203,7 +191,7 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
     private void createTabs() {
         mTabsAdapter.addTab(AlarmClockFragment.class, getResources().getString(R.string.menu_alarm));
         mTabsAdapter.addTab(ClockFragment.class, getResources().getString(R.string.menu_clock));
-        mTabsAdapter.addTab(TimerFragment.class, getResources().getString(R.string.menu_timer));
+        mTabsAdapter.addTab(TimerFullScreenFragment.class, getResources().getString(R.string.menu_timer));
         mTabsAdapter.addTab(StopwatchFragment.class, getResources().getString(R.string.menu_stopwatch));
     }
 
@@ -213,7 +201,28 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(COLOR_THEME_UPDATE_INTENT);
-        registerReceiver(mColorThemeReceiver, intentFilter);
+        Utils.registerReceiver(this, mColorThemeReceiver, intentFilter, RECEIVER_EXPORTED);
+
+        mTimerReceiver = new TimerReceiver();
+        IntentFilter timerFilter = new IntentFilter();
+        timerFilter.addAction(Timers.START_TIMER);
+        timerFilter.addAction(Timers.DELETE_TIMER);
+        timerFilter.addAction(Timers.TIMES_UP);
+        timerFilter.addAction(Timers.TIMER_RESET);
+        timerFilter.addAction(Timers.TIMER_STOP);
+        timerFilter.addAction(Timers.TIMER_DONE);
+        timerFilter.addAction(Timers.TIMER_UPDATE);
+        timerFilter.addAction(Timers.NOTIF_IN_USE_SHOW);
+        timerFilter.addAction(Timers.NOTIF_IN_USE_CANCEL);
+        timerFilter.addAction(Timers.FROM_NOTIFICATION);
+        timerFilter.addAction(Timers.NOTIF_TIMES_UP_STOP);
+        timerFilter.addAction(Timers.NOTIF_TIMES_UP_PLUS_ONE);
+        timerFilter.addAction(Timers.NOTIF_TIMES_UP_SHOW);
+        timerFilter.addAction(Timers.NOTIF_TOGGLE_STATE);
+        timerFilter.addAction(Timers.NOTIF_DELETE_TIMER);
+        timerFilter.addAction(Timers.NOTIF_RESET_TIMER);
+        timerFilter.addAction(Timers.NOTIF_RESET_ALL_TIMER);
+        Utils.registerReceiver(this, mTimerReceiver, timerFilter, RECEIVER_NOT_EXPORTED);
 
         setTheme(Utils.getThemeResourceId(this));
 
@@ -244,6 +253,7 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mColorThemeReceiver);
+        unregisterReceiver(mTimerReceiver);
     }
 
     @Override
@@ -261,7 +271,7 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean(Timers.NOTIF_APP_OPEN, true);
         editor.apply();
-        Intent timerIntent = new Intent();
+        Intent timerIntent = new Intent(this, TimerReceiver.class);
         timerIntent.setAction(Timers.NOTIF_IN_USE_CANCEL);
         sendBroadcast(timerIntent);
 
@@ -382,8 +392,8 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
         // Used for doing callbacks to fragments.
         private HashSet<String> mFragmentTags = new HashSet<String>();
 
-        public TabsAdapter(Activity activity, ViewPager pager) {
-            super(activity.getFragmentManager());
+        public TabsAdapter(AppCompatActivity activity, ViewPager pager) {
+            super(activity.getSupportFragmentManager());
             mContext = activity;
             mPager = pager;
             mPager.setAdapter(this);
@@ -394,7 +404,7 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
             // Because this public method is called outside many times,
             // check if it exits first before creating a new one.
             final String name = makeFragmentName(R.id.desk_clock_pager, position);
-            Fragment fragment = getFragmentManager().findFragmentByTag(name);
+            Fragment fragment = getSupportFragmentManager().findFragmentByTag(name);
             if (fragment == null) {
                 TabInfo info = mTabs.get(position);
                 fragment = Fragment.instantiate(mContext, info.mClss.getName(), null);
@@ -451,7 +461,7 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
 
         private void notifyPageChanged(int newPage) {
             for (String tag : mFragmentTags) {
-                final FragmentManager fm = getFragmentManager();
+                final FragmentManager fm = getSupportFragmentManager();
                 DeskClockFragment f = (DeskClockFragment) fm.findFragmentByTag(tag);
                 if (f != null) {
                     f.onPageChanged(newPage);
@@ -482,9 +492,9 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
         private final float MAX_MOVEMENT_ALLOWED = 20;
         private final long MAX_TIME_ALLOWED = 500;
 
-        public OnTapListener(Activity activity, TextView makePressedView) {
+        public OnTapListener(AppCompatActivity activity, TextView makePressedView) {
             mMakePressedTextView = makePressedView;
-            mPressedColor = activity.getResources().getColor(Utils.getPressedColorId());
+            mPressedColor = Utils.getColorAttr(activity, org.omnirom.deskclock.R.attr.colorPrimary);
             mGrayColor = activity.getResources().getColor(Utils.getGrayColorId());
         }
 
@@ -544,9 +554,9 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
      */
     @Override
     public void onDialogLabelSet(TimerObj timer, String label, String tag) {
-        Fragment frag = getFragmentManager().findFragmentByTag(tag);
-        if (frag instanceof TimerFragment) {
-            ((TimerFragment) frag).setLabel(timer, label);
+        Fragment frag = getSupportFragmentManager().findFragmentByTag(tag);
+        if (frag instanceof TimerFullScreenFragment) {
+            ((TimerFullScreenFragment) frag).setLabel(timer, label);
         }
     }
 
@@ -555,7 +565,7 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
      */
     @Override
     public void onDialogLabelSet(Alarm alarm, String label, String tag) {
-        Fragment frag = getFragmentManager().findFragmentByTag(tag);
+        Fragment frag = getSupportFragmentManager().findFragmentByTag(tag);
         if (frag instanceof AlarmClockFragment) {
             ((AlarmClockFragment) frag).setLabel(alarm, label);
         }
@@ -589,15 +599,7 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
         return mRightButton;
     }
 
-    public ActionableToastBar getUndoBar() {
-        return mUndoBar;
-    }
-
-    public View getUndoFrame() {
-        return mUndoFrame;
-    }
-
-    public LinearLayout getFabButtons() {
+    public ViewGroup getFabButtons() {
         return mFabButtons;
     }
 
@@ -620,8 +622,7 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
     private void checkStoragePermissions() {
         boolean needRequest = false;
         String[] permissions = {
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                android.Manifest.permission.READ_EXTERNAL_STORAGE
+                Manifest.permission.READ_MEDIA_AUDIO
         };
         final ArrayList<String> permissionList = new ArrayList<String>();
         for (String permission : permissions) {
@@ -641,7 +642,7 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
                 mHander.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        ActivityCompat.requestPermissions(DeskClock.this, permissionArray, PERMISSIONS_REQUEST_EXTERNAL_STORAGE);
+                        requestPermissions(permissionArray, PERMISSIONS_REQUEST_EXTERNAL_STORAGE);
                     }
                 }, 1000);
             }
@@ -649,13 +650,11 @@ public class DeskClock extends Activity implements LabelDialogFragment.TimerLabe
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST_EXTERNAL_STORAGE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                }
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSIONS_REQUEST_EXTERNAL_STORAGE) {// If request is cancelled, the result arrays are empty.
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             }
             return;
         }

@@ -16,13 +16,11 @@
 
 package org.omnirom.deskclock.timer;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.support.v13.app.FragmentCompat;
-import android.support.v13.app.FragmentStatePagerAdapter;
-import android.support.v4.util.SparseArrayCompat;
-import android.support.v4.view.PagerAdapter;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.collection.SparseArrayCompat;
+import androidx.viewpager.widget.PagerAdapter;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -123,8 +121,8 @@ public abstract class FragmentStatePagerAdapter2 extends PagerAdapter {
     }
 
     public void setItemVisible(Fragment item, boolean visible) {
-        FragmentCompat.setMenuVisibility(item, visible);
-        FragmentCompat.setUserVisibleHint(item, visible);
+        item.setMenuVisibility(visible);
+        item.setUserVisibleHint(visible);
     }
 
     @Override

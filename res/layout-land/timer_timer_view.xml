@@ -22,7 +22,6 @@
     android:orientation="horizontal">
 
     <LinearLayout
-        android:id="@+id/page_indicators"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="end|center_vertical"

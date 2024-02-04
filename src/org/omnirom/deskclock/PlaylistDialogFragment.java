@@ -17,18 +17,18 @@
  */
 package org.omnirom.deskclock;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatDialog;
+import androidx.appcompat.app.AppCompatDialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 
-public class PlaylistDialogFragment extends DialogFragment implements
+public class PlaylistDialogFragment extends AppCompatDialogFragment implements
         DialogInterface.OnClickListener {
 
     private EditText mLabelBox;
@@ -45,14 +45,14 @@ public class PlaylistDialogFragment extends DialogFragment implements
     }
 
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
+    public AppCompatDialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
         .setTitle(R.string.playlist_file_name)
         .setPositiveButton(android.R.string.ok, this)
         .setNegativeButton(android.R.string.cancel, null)
         .setView(createDialogView());
 
-        Dialog d = builder.create();
+        AppCompatDialog d = builder.create();
         d.getWindow().setSoftInputMode(
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 

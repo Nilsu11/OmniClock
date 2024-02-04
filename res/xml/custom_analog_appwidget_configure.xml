@@ -48,8 +48,5 @@
     <org.omnirom.deskclock.preference.ColorPickerPreference
         android:key="accent_color"
         android:title="@string/accent_color_title" />
-    <Preference
-        android:persistent="false"
-        android:widgetLayout="@layout/preference_button"/>
 
 </PreferenceScreen>

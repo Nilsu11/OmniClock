@@ -21,8 +21,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import org.omnirom.deskclock.AlarmClockFragment;
 import org.omnirom.deskclock.AlarmUtils;
@@ -46,6 +46,7 @@ public final class AlarmNotifications {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
         int flags = instance == null ? PendingIntent.FLAG_NO_CREATE : 0;
+        flags = flags | PendingIntent.FLAG_IMMUTABLE;
         PendingIntent operation = PendingIntent.getBroadcast(context, 0 /* requestCode */,
                 AlarmStateManager.createIndicatorIntent(context), flags);
 
@@ -54,7 +55,7 @@ public final class AlarmNotifications {
 
             // Create an intent that can be used to show or edit details of the next alarm.
             PendingIntent viewIntent = PendingIntent.getActivity(context, instance.hashCode(),
-                    createViewAlarmIntent(context, instance), PendingIntent.FLAG_UPDATE_CURRENT);
+                    createViewAlarmIntent(context, instance), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
             AlarmManager.AlarmClockInfo info =
                     new AlarmManager.AlarmClockInfo(alarmTime, viewIntent);
@@ -118,7 +119,7 @@ public final class AlarmNotifications {
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setColor(resources.getColor(org.omnirom.deskclock.R.color.primary));
+                .setColor(Utils.getColorAttr(context, org.omnirom.deskclock.R.attr.colorPrimary));
 
         if (!Utils.showWearNotification(context)) {
             notification.setLocalOnly(true);
@@ -129,12 +130,12 @@ public final class AlarmNotifications {
         notification.addAction(org.omnirom.deskclock.R.drawable.ic_notify_alarm_off,
                 resources.getString(org.omnirom.deskclock.R.string.alarm_alert_dismiss_now_text),
                 PendingIntent.getBroadcast(context, instance.hashCode(),
-                        dismissIntent, PendingIntent.FLAG_UPDATE_CURRENT));
+                        dismissIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
 
         // Setup content action if instance is owned by alarm
         Intent viewAlarmIntent = createViewAlarmIntent(context, instance);
         notification.setContentIntent(PendingIntent.getActivity(context, instance.hashCode(),
-                viewAlarmIntent, PendingIntent.FLAG_UPDATE_CURRENT));
+                viewAlarmIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
 
         NotificationChannelManager.applyChannel(notification, context, Channel.DEFAULT_NOTIFICATION);
         nm.cancel(instance.hashCode());
@@ -156,7 +157,7 @@ public final class AlarmNotifications {
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setColor(resources.getColor(org.omnirom.deskclock.R.color.primary));
+                .setColor(Utils.getColorAttr(context, org.omnirom.deskclock.R.attr.colorPrimary));
 
         if (!Utils.showWearNotification(context)) {
             notification.setLocalOnly(true);
@@ -167,12 +168,12 @@ public final class AlarmNotifications {
         notification.addAction(org.omnirom.deskclock.R.drawable.ic_notify_alarm_off,
                 resources.getString(org.omnirom.deskclock.R.string.alarm_alert_dismiss_text),
                 PendingIntent.getBroadcast(context, instance.hashCode(),
-                        dismissIntent, PendingIntent.FLAG_UPDATE_CURRENT));
+                        dismissIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
 
         // Setup content action if instance is owned by alarm
         Intent viewAlarmIntent = createViewAlarmIntent(context, instance);
         notification.setContentIntent(PendingIntent.getActivity(context, instance.hashCode(),
-                viewAlarmIntent, PendingIntent.FLAG_UPDATE_CURRENT));
+                viewAlarmIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
 
         NotificationChannelManager.applyChannel(notification, context, Channel.DEFAULT_NOTIFICATION);
         nm.cancel(instance.hashCode());
@@ -197,20 +198,20 @@ public final class AlarmNotifications {
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setLocalOnly(true)
-                .setColor(context.getResources().getColor(org.omnirom.deskclock.R.color.primary));
+                .setColor(Utils.getColorAttr(context, org.omnirom.deskclock.R.attr.colorPrimary));
 
         // Setup dismiss intent
         Intent dismissIntent = AlarmStateManager.createStateChangeIntent(context,
                 AlarmStateManager.ALARM_DISMISS_TAG, instance, AlarmInstance.DISMISSED_STATE);
         notification.setDeleteIntent(PendingIntent.getBroadcast(context, instance.hashCode(),
-                dismissIntent, PendingIntent.FLAG_UPDATE_CURRENT));
+                dismissIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
 
         // Setup content intent
         Intent showAndDismiss = AlarmInstance.createIntent(context, AlarmStateManager.class,
                 instance.mId);
         showAndDismiss.setAction(AlarmStateManager.SHOW_AND_DISMISS_ALARM_ACTION);
         notification.setContentIntent(PendingIntent.getBroadcast(context, instance.hashCode(),
-                showAndDismiss, PendingIntent.FLAG_UPDATE_CURRENT));
+                showAndDismiss, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
 
         NotificationChannelManager.applyChannel(notification, context, Channel.DEFAULT_NOTIFICATION);
         nm.cancel(instance.hashCode());
@@ -225,7 +226,7 @@ public final class AlarmNotifications {
         }
 
         // Close dialogs and window shade, so this will display
-        context.sendBroadcast(new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
+        //context.sendBroadcast(new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
 
         Resources resources = context.getResources();
         NotificationCompat.Builder notification = new NotificationCompat.Builder(context,
@@ -237,7 +238,7 @@ public final class AlarmNotifications {
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setColor(resources.getColor(org.omnirom.deskclock.R.color.primary));
+                .setColor(Utils.getColorAttr(context, org.omnirom.deskclock.R.attr.colorPrimary));
 
         // Setup Snooze Action
         if (AlarmStateManager.canSnooze(context)) {
@@ -245,7 +246,7 @@ public final class AlarmNotifications {
                     AlarmStateManager.ALARM_SNOOZE_TAG, instance, AlarmInstance.SNOOZE_STATE);
             PendingIntent snoozePendingIntent = PendingIntent.getBroadcast(context, instance.hashCode(),
                     snoozeIntent,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
             notification.addAction(org.omnirom.deskclock.R.drawable.ic_notify_snooze,
                     resources.getString(org.omnirom.deskclock.R.string.alarm_alert_snooze_text), snoozePendingIntent);
         }
@@ -254,7 +255,7 @@ public final class AlarmNotifications {
         Intent dismissIntent = AlarmStateManager.createStateChangeIntent(context,
                 AlarmStateManager.ALARM_DISMISS_TAG, instance, AlarmInstance.DISMISSED_STATE);
         PendingIntent dismissPendingIntent = PendingIntent.getBroadcast(context,
-                instance.hashCode(), dismissIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                instance.hashCode(), dismissIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         notification.addAction(org.omnirom.deskclock.R.drawable.ic_notify_alarm_off,
                 resources.getString(org.omnirom.deskclock.R.string.alarm_alert_dismiss_text),
                 dismissPendingIntent);
@@ -263,7 +264,7 @@ public final class AlarmNotifications {
         Intent contentIntent = AlarmInstance.createIntent(context, AlarmActivity.class,
                 instance.mId);
         notification.setContentIntent(PendingIntent.getActivity(context,
-                instance.hashCode(), contentIntent, PendingIntent.FLAG_UPDATE_CURRENT));
+                instance.hashCode(), contentIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
 
         // Setup fullscreen intent
         Intent fullScreenIntent = AlarmInstance.createIntent(context, AlarmActivity.class,
@@ -273,7 +274,7 @@ public final class AlarmNotifications {
         fullScreenIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
                 Intent.FLAG_ACTIVITY_NO_USER_ACTION);
         notification.setFullScreenIntent(PendingIntent.getActivity(context,
-                instance.hashCode(), fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT), true);
+                instance.hashCode(), fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE), true);
         NotificationChannelManager.applyChannel(notification, context, Channel.EVENT_EXPIRED);
         return notification;
     }
@@ -344,13 +345,13 @@ public final class AlarmNotifications {
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setLocalOnly(true)
-                .setColor(resources.getColor(org.omnirom.deskclock.R.color.primary));
+                .setColor(Utils.getColorAttr(context, org.omnirom.deskclock.R.attr.colorPrimary));
 
         // Setup up dismiss action
         Intent dismissIntent = AlarmStateManager.createStateChangeIntent(context,
                 AlarmStateManager.ALARM_DISMISS_TAG, instance, AlarmInstance.DISMISSED_STATE);
         PendingIntent dismissPendingIntent = PendingIntent.getBroadcast(context,
-                instance.hashCode(), dismissIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                instance.hashCode(), dismissIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         notification.addAction(org.omnirom.deskclock.R.drawable.ic_notify_alarm_off,
                 resources.getString(org.omnirom.deskclock.R.string.alarm_alert_dismiss_text),
                 dismissPendingIntent);
@@ -362,7 +363,7 @@ public final class AlarmNotifications {
         viewAlarmIntent.putExtra(AlarmClockFragment.SCROLL_TO_ALARM_INTENT_EXTRA, alarmId);
         viewAlarmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         notification.setContentIntent(PendingIntent.getActivity(context, instance.hashCode(),
-                viewAlarmIntent, PendingIntent.FLAG_UPDATE_CURRENT));
+                viewAlarmIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
 
         NotificationChannelManager.applyChannel(notification, context, Channel.DEFAULT_NOTIFICATION);
         nm.cancel(instance.hashCode());

@@ -15,106 +15,124 @@
 -->
 
 <resources>
-    <style name="DeskClock" parent="@android:style/Theme.Material.Light.DarkActionBar">
-        <item name="android:buttonStyle">?android:attr/borderlessButtonStyle</item>
-        <item name="android:dialogTheme">@style/DialogTheme</item>
-        <item name="android:alertDialogTheme">@style/DialogTheme</item>
-        <item name="android:colorAccent">@color/primary</item>
-        <item name="android:colorPrimary">@color/primary</item>
-        <item name="android:colorPrimaryDark">@color/primary</item>
-        <item name="android:navigationBarColor">@color/primary</item>
-        <item name="android:colorControlActivated">@color/primary</item>
+    <style name="DeskClock" parent="DeskClockLight" />
+
+    <style name="DeskClockLight" parent="@style/Theme.AppCompat.Light">
+        <item name="buttonStyle">?attr/borderlessButtonStyle</item>
+        <item name="dialogTheme">@style/DialogTheme</item>
+        <item name="alertDialogTheme">@style/DialogTheme</item>
+        <item name="colorAccent">@color/accent</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorSurface">@color/material_grey_600</item>
+        <item name="android:navigationBarColor">@color/view_background</item>
+        <item name="android:statusBarColor">@color/window_background</item>
+        <item name="colorControlActivated">@color/accent</item>
         <item name="android:windowBackground">@color/window_background</item>
-        <item name="android:actionBarStyle">@style/ActionBarStyle</item>
+        <item name="actionBarStyle">@style/ActionBarStyle</item>
+        <item name="android:switchStyle">@style/Switch</item>
+        <item name="snackbarStyle">@style/SnackBarStyle</item>
     </style>
 
-    <style name="DeskClockDark" parent="@android:style/Theme.Material">
-        <item name="android:buttonStyle">?android:attr/borderlessButtonStyle</item>
-        <item name="android:dialogTheme">@style/DialogThemeDark</item>
-        <item name="android:alertDialogTheme">@style/DialogThemeDark</item>
-        <item name="android:colorAccent">@color/primary</item>
-        <item name="android:colorPrimary">@color/primary</item>
-        <item name="android:colorPrimaryDark">@color/primary</item>
-        <item name="android:navigationBarColor">@color/primary</item>
-        <item name="android:colorControlActivated">@color/primary</item>
+    <style name="DeskClockDark" parent="@style/Theme.AppCompat">
+        <item name="buttonStyle">?attr/borderlessButtonStyle</item>
+        <item name="dialogTheme">@style/DialogThemeDark</item>
+        <item name="alertDialogTheme">@style/DialogThemeDark</item>
+        <item name="colorAccent">@color/accent_dark</item>
+        <item name="colorPrimary">@color/primary_dark</item>
+        <item name="colorPrimaryDark">@color/primary</item>
+        <item name="colorSurface">@color/material_grey_600</item>
+        <item name="android:navigationBarColor">@color/view_background_dark</item>
+        <item name="android:statusBarColor">@color/window_background_dark</item>
+        <item name="colorControlActivated">@color/accent_dark</item>
         <item name="android:windowBackground">@color/window_background_dark</item>
-        <item name="android:actionBarStyle">@style/ActionBarStyle</item>
+        <item name="actionBarStyle">@style/ActionBarStyleDark</item>
+        <item name="android:switchStyle">@style/Switch</item>
+        <item name="snackbarStyle">@style/SnackBarStyle</item>
     </style>
 
-    <style name="DeskClockBlack" parent="@android:style/Theme.Material">
-        <item name="android:buttonStyle">?android:attr/borderlessButtonStyle</item>
-        <item name="android:dialogTheme">@style/DialogThemeBlack</item>
-        <item name="android:alertDialogTheme">@style/DialogThemeBlack</item>
-        <item name="android:colorAccent">@color/primary</item>
-        <item name="android:colorPrimary">@color/primary_black</item>
-        <item name="android:colorPrimaryDark">@color/primary_black</item>
+    <style name="DeskClockBlack" parent="@style/Theme.AppCompat">
+        <item name="buttonStyle">?attr/borderlessButtonStyle</item>
+        <item name="dialogTheme">@style/DialogThemeBlack</item>
+        <item name="alertDialogTheme">@style/DialogThemeBlack</item>
+        <item name="colorAccent">@color/accent_black</item>
+        <item name="colorPrimary">@color/primary_black</item>
+        <item name="colorPrimaryDark">@color/primary_black</item>
+        <item name="colorSurface">@color/material_grey_600</item>
         <item name="android:navigationBarColor">@color/primary_black</item>
-        <item name="android:colorControlActivated">@color/primary</item>
+        <item name="android:statusBarColor">@color/window_background_black</item>
+        <item name="colorControlActivated">@color/primary</item>
         <item name="android:windowBackground">@color/window_background_black</item>
-        <item name="android:actionBarStyle">@style/ActionBarStyleBlack</item>
+        <item name="actionBarStyle">@style/ActionBarStyleBlack</item>
+        <item name="android:switchStyle">@style/Switch</item>
+        <item name="snackbarStyle">@style/SnackBarStyle</item>
     </style>
 
-    <style name="ActionBarStyle" parent="@android:style/Widget.Material.Light.ActionBar">
-        <item name="android:background">@color/primary</item>
-        <item name="android:popupTheme">@style/ActionBarPopupTheme</item>
+    <style name="ActionBarStyle" parent="@style/Widget.AppCompat.Light.ActionBar">
+        <item name="background">@color/window_background</item>
+        <item name="popupTheme">@style/ActionBarPopupTheme</item>
     </style>
 
-    <style name="ActionBarStyleBlack" parent="@android:style/Widget.Material.ActionBar">
-        <item name="android:background">@color/primary_black</item>
-        <item name="android:popupTheme">@style/ActionBarPopupThemeBlack</item>
+    <style name="ActionBarStyleDark" parent="@style/Widget.AppCompat.ActionBar">
+        <item name="background">@color/window_background_dark</item>
+        <item name="popupTheme">@style/ActionBarPopupThemeDark</item>
     </style>
 
-    <style name="ActionBarPopupTheme" parent="@android:style/Widget.Material.Light">
-        <item name="android:colorBackground">@color/primary</item>
+    <style name="ActionBarStyleBlack" parent="@style/Widget.AppCompat.ActionBar">
+        <item name="background">@color/primary_black</item>
+        <item name="popupTheme">@style/ActionBarPopupThemeBlack</item>
     </style>
 
-    <style name="ActionBarPopupThemeBlack" parent="@android:style/Widget.Material">
+    <style name="ActionBarPopupTheme" parent="@style/Widget.AppCompat.Light.PopupMenu">
+        <item name="android:colorBackground">@color/view_background</item>
+    </style>
+
+    <style name="ActionBarPopupThemeDark" parent="@style/Widget.AppCompat.PopupMenu">
+        <item name="android:colorBackground">@color/view_background_dark</item>
+    </style>
+
+    <style name="ActionBarPopupThemeBlack" parent="@style/Widget.AppCompat.PopupMenu">
         <item name="android:colorBackground">@color/primary_black</item>
     </style>
 
-    <style name="DialogTheme" parent="@android:style/Theme.Material.Light.Dialog">
-        <item name="android:colorAccent">@color/primary</item>
-        <item name="android:colorPrimary">@color/primary</item>
-        <item name="android:colorPrimaryDark">@color/primary_dark</item>
+    <style name="DialogTheme" parent="@style/Theme.AppCompat.Light.Dialog">
+        <item name="colorAccent">@color/primary</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="android:windowBackground">@color/window_background</item>
     </style>
 
-    <style name="DialogThemeDark" parent="@android:style/Theme.Material.Dialog">
-        <item name="android:colorAccent">@color/primary</item>
-        <item name="android:colorPrimary">@color/primary</item>
-        <item name="android:colorPrimaryDark">@color/primary_dark</item>
+    <style name="DialogThemeDark" parent="@style/Theme.AppCompat.Dialog">
+        <item name="colorAccent">@color/primary</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="android:windowBackground">@color/window_background_dark</item>
     </style>
 
-    <style name="DialogThemeBlack" parent="@android:style/Theme.Material.Dialog">
-        <item name="android:colorAccent">@color/primary</item>
-        <item name="android:colorPrimary">@color/primary_black</item>
-        <item name="android:colorPrimaryDark">@color/primary_black</item>
+    <style name="DialogThemeBlack" parent="@style/Theme.AppCompat.Dialog">
+        <item name="colorAccent">@color/primary</item>
+        <item name="colorPrimary">@color/primary_black</item>
+        <item name="colorPrimaryDark">@color/primary_black</item>
         <item name="android:windowBackground">@color/window_background_black</item>
     </style>
 
     <!-- NOTE: This must be a fullscreen theme, or else the fullscreen alarm will
          be unable to turn the screen on. -->
     <style name="AlarmAlertFullScreenTheme"
-           parent="@android:style/Theme.Material.NoActionBar">
+           parent="@style/Theme.AppCompat.NoActionBar">
     </style>
 
     <style name="TimerAlertFullScreenTheme"
-           parent="@android:style/Theme.Material.NoActionBar">
+           parent="@style/Theme.AppCompat.NoActionBar">
     </style>
 
-    <style name="ScreensaverActivityTheme" parent="@android:style/Theme.Material.NoActionBar">
+    <style name="ScreensaverActivityTheme" parent="@style/Theme.AppCompat.NoActionBar">
     </style>
 
     <style name="timer_setup_digit">
         <item name="android:textSize">@dimen/medium_font_size</item>
         <item name="android:textColor">?android:attr/textColorPrimary</item>
-        <item name="android:fontFamily">sans-serif-light</item>
-    </style>
-
-    <style name="medium_thin">
-        <item name="android:textSize">@dimen/medium_font_size</item>
-        <item name="android:fontFamily">sans-serif-thin</item>
+        <item name="fontFamily">sans-serif-light</item>
     </style>
 
     <style name="medium_light">
@@ -123,7 +141,7 @@
 
     <style name="widget_medium_thin">
         <item name="android:textSize">@dimen/widget_medium_font_size</item>
-        <item name="android:fontFamily">sans-serif-thin</item>
+        <item name="fontFamily">sans-serif-thin</item>
     </style>
 
     <style name="label">
@@ -134,54 +152,38 @@
         <item name="android:textSize">@dimen/widget_label_font_size</item>
     </style>
 
-    <style name="custom_widget_label" parent="label">
-        <item name="android:textSize">@dimen/custom_widget_label_font_size</item>
-    </style>
-
     <style name="header_1">
         <item name="android:textSize">@dimen/header_font_size</item>
         <item name="android:textStyle">bold</item>
     </style>
 
     <style name="header_not_caps" parent ="header_1">
-        <item name="android:textAllCaps">false</item>
+        <item name="textAllCaps">false</item>
     </style>
 
     <style name="big_thin">
         <item name="android:textSize">@dimen/big_font_size</item>
-        <item name="android:fontFamily">sans-serif-thin</item>
+        <item name="fontFamily">sans-serif-thin</item>
     </style>
 
     <style name="big_light">
         <item name="android:textSize">@dimen/big_font_size</item>
     </style>
 
-    <style name="big_bold">
-        <item name="android:textSize">@dimen/big_font_size</item>
-        <item name="android:textStyle">bold</item>
-    </style>
-
-    <style name="alarm_lockscreen_thin">
-        <item name="android:textSize">@dimen/alarm_info_font_size</item>
-        <item name="android:fontFamily">sans-serif-thin</item>
-    </style>
-
-    <style name="widget_big_thin" parent="big_thin">
-        <item name="android:textSize">@dimen/widget_big_font_size</item>
-    </style>
-
-    <style name="alarm_label">
-        <item name="android:textSize">@dimen/alarm_label_size</item>
-    </style>
-
-    <style name="body">
-        <item name="android:textSize">@dimen/body_font_size</item>
-    </style>
-
-    <style name="dialpad">
-        <item name="android:textSize">@dimen/dialpad_font_size</item>
-        <item name="android:fontFamily">sans-serif-light</item>
+    <style name="Widget.Button.TimerSetupDigit" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:foreground">?attr/selectableItemBackgroundBorderless</item>
+        <item name="android:background">@drawable/floating_action_button</item>
+        <item name="backgroundTint">?android:navigationBarColor</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:gravity">center</item>
+        <item name="android:includeFontPadding">false</item>
         <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:textSize">36sp</item>
+        <item name="android:layout_margin">2.0dip</item>
+        <item name="layout_constraintDimensionRatio">1:1</item>
+        <item name="roundPercent">1.0</item>
+        <item name="autoSizeMaxTextSize">36sp</item>
+        <item name="autoSizeTextType">uniform</item>
     </style>
 
     <style name="PrimaryLabelTextAppearance">
@@ -202,63 +204,53 @@
     <style name="CityDayTextAppearance" parent="SecondaryLabelTextAppearance">
     </style>
 
-    <style name="TextAppearance" parent="@android:style/TextAppearance.Material" >
-    </style>
-
-    <style name="TextAppearanceWhite" parent="@android:style/TextAppearance.Material" >
-        <item name="android:textSize">15sp</item>
-        <item name="android:textColor">@color/white</item>
-    </style>
-
-    <style name="TextAppearanceBottomLine" parent="@android:style/TextAppearance.Material" >
+    <style name="TextAppearanceBottomLine" parent="@style/TextAppearance.AppCompat" >
         <item name="android:textSize">15sp</item>
         <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
 
-    <style name="TextAppearanceBottomLineBigger" parent="@android:style/TextAppearance.Material" >
+    <style name="TextAppearanceBottomLineBigger" parent="@style/TextAppearance.AppCompat" >
         <item name="android:textSize">16sp</item>
         <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
 
-    <style name="TextAppearanceWhiteBigger" parent="@android:style/TextAppearance.Material" >
+    <style name="TextAppearanceWhiteBigger" parent="@style/TextAppearance.AppCompat" >
         <item name="android:textSize">16sp</item>
         <item name="android:textColor">@color/white</item>
     </style>
 
-    <style name="TextAppearanceGray" parent="@android:style/TextAppearance.Material" >
-        <item name="android:textSize">16sp</item>
-        <item name="android:textColor">@color/clock_gray</item>
-    </style>
-
-    <style name="TextAppearanceDayNight" parent="@android:style/TextAppearance.Material" >
+    <style name="TextAppearanceDayNight" parent="@style/TextAppearance.AppCompat" >
         <item name="android:textSize">15sp</item>
         <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
 
-    <style name="TextAppearanceAlarmTime" parent="@android:style/TextAppearance.Material" >
+    <style name="TextAppearanceAlarmTime" parent="@style/TextAppearance.AppCompat" >
         <item name="android:textSize">@dimen/alarm_time_font_size</item>
     </style>
 
     <!-- Status Bar Styles -->
-    <style name="TextAppearance.StatusBar">
-        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
-    </style>
 
-    <style name="ToastBarStyle">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">@dimen/bottom_nav_height</item>
-        <item name="android:layout_gravity">bottom</item>
-        <item name="android:orientation">horizontal</item>
-        <item name="android:gravity">center_vertical</item>
-        <item name="android:background">@drawable/undo_background</item>
-        <item name="android:visibility">gone</item>
-        <item name="android:alpha">0</item>
-        <item name="android:clickable">true</item>
-    </style>
-
-    <style name="SpinnerTextStyle" parent="@android:style/TextAppearance.Material" >
+    <style name="SpinnerTextStyle" parent="@style/TextAppearance.AppCompat" >
         <item name="android:textSize">15sp</item>
         <item name="android:textColor">?android:attr/textColorPrimary</item>
-        <item name="android:background">?android:attr/windowBackground</item>
+        <item name="background">?android:attr/windowBackground</item>
+    </style>
+
+    <style name="Switch" parent="@android:style/Widget.Material.CompoundButton.Switch">
+        <item name="android:switchMinWidth">52dp</item>
+        <item name="android:minHeight">@dimen/touch_target_min_size</item>
+        <item name="android:track">@drawable/switch_track</item>
+        <item name="track">@drawable/switch_track</item>
+        <item name="android:thumb">@drawable/switch_thumb</item>
+        <item name="thumbTint">?android:attr/windowBackground</item>
+    </style>
+
+    <style name="SnackBarStyle" parent="@style/Widget.MaterialComponents.Snackbar">
+        <item name="android:background">@drawable/popup_background</item>
+        <item name="android:layout_margin">@null</item>
+        <item name="android:layout_marginLeft">8.0dip</item>
+        <item name="android:layout_marginTop">8.0dip</item>
+        <item name="android:layout_marginRight">8.0dip</item>
+        <item name="android:layout_marginBottom">8dp</item>
     </style>
 </resources>
